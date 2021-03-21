@@ -150,6 +150,22 @@ dow_NA
 # (state_NA | month_NA) / 
 #   (first_NA | dow_NA)
 ```
+Comparing distribution of 0s across months to NAs across months
+```{r comparing 0s to NAs}
+mobility %>%
+  filter(retail_rec_change == 0) %>%
+  mutate(year_mo = paste(year, month, sep = "_")) %>%
+  select(year_mo) %>%
+  ggplot(aes(x = year_mo)) + geom_bar() + theme(axis.text.x = element_text(angle = 90))
+
+
+mobility %>%
+  filter(is.na(retail_rec_change)) %>%
+  mutate(year_mo = paste(year, month, sep = "_")) %>%
+  select(year_mo) %>%
+  ggplot(aes(x = year_mo)) + geom_bar() + theme(axis.text.x = element_text(angle = 90))
+```
+
 
 Aggregating over Date and state, averaging all of the county `retail_rec_change`s
 ```{r aggregate by state two ways}
@@ -165,12 +181,14 @@ mobility_agg_wNA <- mobility %>%
   group_by(state, date, year, month) %>%
   summarise(avg_retail_rec_change = mean(retail_rec_change),  
             .groups = 'drop')
+  
 ```
+
 Write transformed data for use in analysis
 ```{r}
 write.csv(mobility_agg, 
 # write.csv(mobility_agg_wNA,
-           file = paste0("~/mids_w203_sp_21/lab_2-rbgs/data/processed/",
+           file = paste0("~/mids_w203_sp_21/lab_2-rbgs/data/interim/",
                           "mobility.csv"))
 ```
 

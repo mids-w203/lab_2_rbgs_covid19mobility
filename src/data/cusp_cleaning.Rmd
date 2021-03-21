@@ -1,0 +1,63 @@
+---
+title: "cusp_cleaning"
+output: html_document
+---
+```{r load packages}
+library(janitor)
+library(tidyverse)
+library(magrittr)
+```
+
+
+Load all of the different CSVs (that we're initially interested in) as dataframes. 
+```{r extract data from multiple CSVs}
+# check all CSVs in 
+csvs <- list.files("~/mids_w203_sp_21/lab_2-rbgs/data/raw/CUSP", 
+                   pattern = "csv$")
+dfs <- list()
+# For loop to pull data from CSVs
+for (csv in csvs) {
+  
+  #regex to name dataframe (remove ".csv")
+  df_name <- sub("\\..*", "", csv)
+  dfs <- append(dfs, df_name) # keep this list for later
+    
+  # load data
+  in_data <- read.csv(paste0("~/mids_w203_sp_21/lab_2-rbgs/data/raw/CUSP/",csv))
+  
+  # Clean variable names
+  data <- in_data %>%
+    clean_names() %>%
+    filter(state != "" &
+             state != "total" &
+             state != "Total") # Removes the hanging data
+  
+  # load data
+  assign(df_name, data)
+}
+```
+
+Join all tables together
+```{r join all cusp data}
+dfs_short <- dfs[-1] # remove first row to join the rest
+
+cusp <- get(unlist(dfs[1]))
+
+for (df in dfs_short) {
+  # Check if inner join will succeed
+  if(length(setdiff(cusp$state, get(df)$state)) == 0) {
+  # inner join data
+    cusp <- cusp %>% 
+      inner_join(get(df), by = "state")
+  } else {
+  print(paste("Inner Join failed at", df, "due to row mismatch"))
+    }
+}
+```
+
+Save to single CSV
+```{r}
+write.csv(cusp, 
+           file = paste0("~/mids_w203_sp_21/lab_2-rbgs/data/interim/",
+                          "cusp.csv"))
+```
