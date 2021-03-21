@@ -1,0 +1,56 @@
+State,State Abbreviation,State FIPS Code,Utilities shutoff moratorium start,Utilities shutoff moratorium expiration,Second utilities shutoff moratorium start,Utilities reconnection start,Utilities reconnection end
+Alabama,AL,1,0,0,0,0,0
+Alaska,AK,2,0,0,0,0,0
+Arizona,AZ,4,0,0,0,0,0
+Arkansas,AR,5,4/10/2020,2/27/2021,0,4/10/2020,2/27/2021
+California,CA,6,3/4/2020,0,0,3/4/2020,0
+Colorado,CO,8,0,0,0,0,0
+Connecticut,CT,9,3/12/2020,9/30/2020,0,3/18/2020,5/2/2020
+Delaware,DE,10,3/24/2020,7/1/2020,0,0,0
+District of Columbia,DC,11,3/27/2020,1/31/2021,0,0,0
+Florida,FL,12,0,0,0,0,0
+Georgia,GA,13,0,0,0,0,0
+Hawaii,HI,15,5/4/2020,2/15/2021,0,5/4/2020,2/15/2021
+Idaho,ID,16,0,0,0,0,0
+Illinois,IL,17,3/18/2020,7/26/2020,0,6/18/2020,1/26/2021
+Indiana,IN,18,3/19/2020,8/15/2020,0,0,0
+Iowa,IA,19,3/27/2020,5/28/2020,0,0,0
+Kansas,KS,20,3/16/2020,6/1/2020,0,0,0
+Kentucky,KY,21,5/8/2020,11/6/2020,0,0,0
+Louisiana,LA,22,3/13/2020,7/16/2020,0,0,0
+Maine,ME,23,3/16/2020,11/1/2020,0,0,0
+Maryland,MD,24,3/16/2020,11/16/2020,0,0,0
+Massachusetts,MA,25,3/24/2020,11/16/2020,0,0,0
+Michigan,MI,26,0,0,0,3/28/2020,10/2/2020
+Minnesota,MN,27,6/18/2020,2/13/2021,0,0,0
+Mississippi,MS,28,3/15/2020,5/27/2020,0,0,0
+Missouri,MO,29,0,0,0,0,0
+Montana,MT,30,3/30/2020,5/25/2020,0,0,0
+Nebraska,NE,31,3/24/2020,8/15/2020,0,0,0
+Nevada,NV,32,0,0,0,0,0
+New Hampshire,NH,33,3/17/2020,0,0,0,0
+New Jersey,NJ,34,4/13/2020,0,0,4/13/2020,0
+New Mexico,NM,35,3/19/2020,2/6/2021,0,0,0
+New York,NY,36,6/17/2020,1/31/2021,0,6/17/2020,1/31/2021
+North Carolina,NC,37,3/19/2020,9/1/2020,0,0,0
+North Dakota,ND,38,0,0,0,0,0
+Ohio,OH,39,3/31/2020,7/10/2020,0,0,0
+Oklahoma,OK,40,0,0,0,0,0
+Oregon,OR,41,0,0,0,0,0
+Pennsylvania,PA,42,3/13/2020,11/9/2020,0,0,0
+Rhode Island,RI,44,3/17/2020,10/1/2020,0,0,0
+South Carolina,SC,45,3/18/2020,5/14/2020,0,3/18/2020,5/14/2020
+South Dakota,SD,46,0,0,0,0,0
+Tennessee,TN,47,3/27/2020,8/29/2020,0,3/27/2020,8/29/2020
+Texas,TX,48,0,0,0,0,0
+Utah,UT,49,0,0,0,0,0
+Vermont,VT,50,3/18/2020,10/15/2020,12/22/2020,0,0
+Virginia,VA,51,3/16/2020,10/6/2020,0,0,0
+Washington,WA,53,3/23/2020,0,0,3/23/2020,0
+West Virginia,WV,54,0,0,0,0,0
+Wisconsin,WI,55,3/22/2020,0,0,0,0
+Wyoming,WY,56,0,0,0,0,0
+Total,,,,23,1,,8
+,,,,,,,
+,,,"The CUSP team is grateful to collaborate with the research team led by Emily A Benfer, JD LLM to report state-level utilities policy data. We take full responsibility for any inaccuracies in these data and encourage you to contact us if you have questions or suggestions for improving the database. To access the full COVID-19 Eviction Moratoria & Housing Policy dataset, please contact benfere@wfu.edu.",,,,
+,,,"Benfer EA, Koehler R, Alexander AK, Adam K, Mark A. COVID-19 Eviction Moratoria & Housing Policy: Federal, State, Commonwealth, and Territory. Published 2020.",,,,

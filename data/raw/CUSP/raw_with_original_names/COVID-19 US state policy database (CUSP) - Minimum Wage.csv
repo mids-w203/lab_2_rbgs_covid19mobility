@@ -1,0 +1,52 @@
+State,State Abbreviation,State FIPS Code,2015 Minimum Wage,2016 Minimum Wage,2017 Minimum Wage,2018 Minimum Wage,2019 Minimum Wage,Jan 1 2020 Minimum Wage,Jul 1 2020 Minimum Wage,Sept 1 2020 Minimum Wage,Oct 1 2020 Minimum Wage,2020 Minimum Wage for Tipped Workers,2021 Minimum Wage,Different Minimum Wage for Smaller Businesses,,Notes
+Alabama,AL,1,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,0,,AL - No official state minimum wage
+Alaska,AK,2,$8.75,$9.75,$9.80,$9.84,$10.19,$10.19,$10.19,$10.19,$10.19,$10.19,$10.34,0,,
+Arizona,AZ,4,$8.05,$8.05,$10.00,$10.50,$12.00,$12.00,$12.00,$12.00,$12.00,$9.00,$12.15,0,,
+Arkansas,AR,5,$7.50,$8.00,$8.50,$8.50,$9.25,$10.00,$10.00,$10.00,$10.00,$2.63,$11.00,1,,AR - Minimum wage rates applicable to employers of four or more
+California,CA,6,$9.00,$10.00,$10.00,$11.00,$12.00,$12.00,$12.00,$12.00,$12.00,$12.00,$13.00,1,,CA - Smaller business minimum wage applicable to employers with 25 employees or less
+Colorado,CO,8,$8.23,$8.31,$9.30,$10.20,$12.00,$12.00,$12.00,$12.00,$12.00,$8.98,$12.32,1,,"CO - Minimum wage rate and overtime provisions applicable to retail and service, commercial support service, food and beverage, and health and medical industries."
+Connecticut,CT,9,$9.15,$9.60,$10.10,$10.10,$11.00,$11.00,$11.00,$12.00,$12.00,$6.38,$12.00,0,,
+Delaware,DE,10,$8.25,$8.25,$8.25,$8.75,$9.25,$9.25,$9.25,$9.25,$9.25,$2.23,$9.25,0,,
+District of Columbia,DC,11,$10.50,$11.50,$11.50,$13.25,$14.00,$14.00,$15.00,$15.00,$15.00,$5.00,$15.00,0,,
+Florida,FL,12,$8.05,$8.05,$8.10,$8.25,$8.56,$8.56,$8.56,$8.56,$8.56,$5.54,$8.65,0,,
+Georgia,GA,13,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,1,,GA - State minimum wage below federal minimum wage at $5.15; Minimum wage rates applicable to employers of six or more; State law excludes from coverage any employment that is subject to the federal Fair Labor Standards Act when the federal rate is greater than the State rate
+Hawaii,HI,15,$7.75,$8.50,$9.25,$10.10,$10.10,$10.10,$10.10,$10.10,$10.10,$9.35,$10.10,0,,"HI - Domestic service workers are subject to Hawaii's minimum wage and overtime requirements; Act 248, Regular Session 2013"
+Idaho,ID,16,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$3.35,$7.25,0,,
+Illinois,IL,17,$8.25,$8.25,$8.25,$8.25,$9.25,$9.25,$10.00,$10.00,$10.00,$6.00,$11.00,1,,IL - Minimum wage rates applicable to employers of four or more
+Indiana,IN,18,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,1,,IN - Minimum wage rates applicable to employers of two or more
+Iowa,IA,19,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$4.35,$7.25,0,,
+Kansas,KS,20,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,0,,
+Kentucky,KY,21,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,0,,
+Louisiana,LA,22,$7.25,$7.25,$7.25,$7.25,$7.25,7.25,$7.25,$7.25,$7.25,$2.13,$7.25,0,,LA - No official state minimum wage
+Maine,ME,23,$7.50,$7.50,$9.00,$10.00,$12.00,$12.00,$12.00,$12.00,$12.00,$6.00,$12.15,0,,
+Maryland,MD,24,$8.25,$8.75,$8.75,$10.10,$11.00,$11.00,$11.00,$11.00,$11.00,$3.63,$11.75,0,,
+Massachusetts,MA,25,$9.00,$10.00,$11.00,$11.00,$12.75,$12.75,$12.75,$12.75,$12.75,$4.95,$13.50,0,,
+Michigan,MI,26,$8.15,$8.50,$8.90,$9.25,$9.65,$9.65,$9.65,$9.65,$9.65,$3.67,$9.65,1,,MI - Minimum wage rates applicable to employers of two or more
+Minnesota,MN,27,$9.00,$9.50,$9.50,$9.86,$10.00,$10.00,$10.00,$10.00,$10.00,$8.15,$10.08,1,,"MN - Minnesota sets a lower min wage rate for enterprises with annual receipts of less than $500,000"
+Mississippi,MS,28,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,0,,MS - No official state minimum wage
+Missouri,MO,29,$7.65,$7.65,$7.70,$7.85,$9.45,$9.45,$9.45,$9.45,$9.45,$4.73,$10.30,1,,"MO - In addition to the exemption for federally covered employment, the law exempts, among others, employees of a retail or service business with gross annual sales or business done of less than $500,000 (in regards to min wage rate)"
+Montana,MT,30,$8.05,$8.05,$8.15,$8.30,$8.65,$8.65,$8.65,$8.65,$8.65,$4.00,$8.75,1,,"MT - Montana sets a lower min wage rate for businesses with gross annual sales of $110,000 or less."
+Nebraska,NE,31,$8.00,$9.00,$9.00,$9.00,$9.00,$9.00,$9.00,$9.00,$9.00,$2.13,$9.00,1,,NE - Minimum wage rates applicable to employers of four or more
+Nevada,NV,32,$8.25,$8.25,$8.25,$8.25,$8.25,$8.25,$9.00,$9.00,$9.00,$8.00,$8.00,1,,NV - Minimum wage rates reflect value for employees not receiving health insurance coverage from their employer; Employees that do receive health insurance coverage have a minimum wage $1 lower (ex. $9 minimum wage for those without health coverage is $8 for those with health coverage)
+New Hampshire,NH,33,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$3.26,$7.25,0,,
+New Jersey,NJ,34,$8.38,$8.38,$8.44,$8.60,$11.00,$11.00,$11.00,$11.00,$11.00,$3.13,$12.00,0,,
+New Mexico,NM,35,$7.50,$7.50,$7.50,$7.50,$9.00,$9.00,$9.00,$9.00,$9.00,$2.35,$10.50,0,,
+New York,NY,36,$8.75,$9.00,$9.70,$10.40,$11.80,$11.80,$11.80,$11.80,$11.80,$7.85,$12.50,0,,"NY - In 2020, Long Island and Westchester have $13 minimum wage ($14 in 2021); NYC has $15 minimum wage"
+North Carolina,NC,37,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,0,,
+North Dakota,ND,38,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$4.86,$7.25,0,,
+Ohio,OH,39,$8.10,$8.10,$8.15,$8.30,$8.70,$8.70,$8.70,$8.70,$8.70,$4.35,$8.80,1,,"OH - Employers with annual gross receipts under $305,000 have different min wage rate"
+Oklahoma,OK,40,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,1,,"OK - Lower min wage rate for employers of fewer than 10 full-time employees at any one location and for those with annual gross sales of less than $100,000 ($2 minimum wage when that small)"
+Oregon,OR,41,$9.25,$9.75,$9.75,$10.75,$11.25,$11.25,$12.00,$12.00,$12.00,$11.50,$12.00,0,,OR - Non-urban minimum wage is $11.50; Portland metro area minimum wage is $13.25
+Pennsylvania,PA,42,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.83,$7.25,0,,
+Rhode Island,RI,44,$9.00,$9.60,$9.60,$10.10,$10.50,$10.50,$10.50,$10.50,$11.50,$3.89,$11.50,0,,
+South Carolina,SC,45,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,0,,SC - No official state minimum wage
+South Dakota,SD,46,$8.50,$8.55,$8.65,$8.85,$9.30,$9.30,$9.30,$9.30,$9.30,$4.65,$9.45,0,,
+Tennessee,TN,47,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,0,,TN - No official state minimum wage
+Texas,TX,48,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,0,,
+Utah,UT,49,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,0,,
+Vermont,VT,50,$9.15,$9.60,$10.00,$10.50,$10.96,$10.96,$10.96,$10.96,$10.96,$5.46,$11.75,1,,VT - Minimum wage rates applicable to employers of two or more
+Virginia,VA,51,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,1,,VA - Minimum wage rates applicable to employers of four or more
+Washington,WA,53,$9.47,$9.47,$11.00,$11.50,$13.50,$13.50,$13.50,$13.50,$13.50,$13.50,$13.69,0,,
+West Virginia,WV,54,$8.00,$8.75,$8.75,$8.75,$8.75,$8.75,$8.75,$8.75,$8.75,$2.62,$8.75,1,,WV - Minimum wage rate applicable to employers of 6 or more employees at one location
+Wisconsin,WI,55,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.33,$7.25,0,,
+Wyoming,WY,56,$5.15,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$7.25,$2.13,$7.25,0,,WY - State minimum wage below federal minimum wage at $5.15
