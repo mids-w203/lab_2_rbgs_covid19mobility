@@ -89,7 +89,7 @@ nyt_covid_new <- nyt_covid %>%
     ) %>%
   mutate(
     new_cases = cases - lag(cases, default = first(cases), order_by = date)
-    ,new_deaths = deaths - lag(deaths, default = first(cases), order_by = date)
+    ,new_deaths = deaths - lag(deaths, default = first(deaths), order_by = date)
   )
 summary(nyt_covid_new)
 ```
