@@ -1,0 +1,116 @@
+---
+title: "Initial EDA - NYT_COVID_CASES"
+author: 'Ruby Han'
+date: "03/24/2021"
+output: pdf_document
+---
+
+```{r load packages, message=FALSE}
+library(tidyverse)
+library(magrittr)
+library(ggplot2)
+library(patchwork)
+library(sandwich)
+library(lmtest)
+library(knitr) # kable
+theme_set(theme_minimal())
+knitr::opts_chunk$set(dpi = 300)
+
+# assemble multiple plots
+library(gridExtra)
+
+# read excel format
+library(readxl)
+
+# import fread function
+library(data.table) 
+```
+
+```{r load data, message=FALSE, warning=FALSE}
+nyt_covid_data <- fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
+jhu_covid_data <- fread("https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/JHU_USCountymap/df_Counties2020.csv")
+```
+
+# Data Issues
+https://github.com/nytimes/covid-19-data/blob/master/PROBABLE-CASES-NOTE.md
+- At the beginning of COVID in US, most health departments and CDC only considered acase to be 'confirmed' as COVID with a positive lab test result. Recently, 'probable' cases are reported which may affect data accuracy as NYT has changed the dataset to start including 'probable' cases when available. NYT is working on updating past data to include 'probable' cases. Thus, in some states, the data will be revised to show a higher number of cases on past dates.
+
+
+```{r nyt_covid_data EDA, echo=FALSE}
+summary(nyt_covid_data) # earliest date record 2020-01-21 and updating on a daily basis
+unique(nyt_covid_data$state) # 55 states - 4 additional US territories (Guam, Northern Mariana Islands, Virgin Islands and Puerto Rico) compared to CUSP data
+names(nyt_covid_data) # 5 columns (date, state, fips, cases, deaths)
+
+# convert date strings to dates
+nyt_covid <- nyt_covid_data %>% 
+  mutate(
+    date = as.Date(date)
+  ) %>% 
+  select(
+    date
+    ,state
+    ,cases
+  )
+
+typeof(nyt_covid_data$date) # R's default date format is in integer
+typeof(nyt_covid$date)
+
+nyt_covid
+```
+
+```{r EDA plot}
+ny_state_covid <- nyt_covid %>%
+  group_by(
+    state
+    ) %>%
+  filter(
+    state == 'New York'
+  ) %>% 
+  ggplot() +
+  aes(x = date, y = cases) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x = "Date",
+       y = " Cumulative Count of Cases",
+       title = "Cumulative Cases for Any Given Day in New York State") +
+  scale_y_continuous(labels = scales::comma)
+ny_state_covid
+```
+
+# NYT data
+Based on our plotting using NYT COVID dataset, we obtain cumulative cases for any given day in each state. In order to obtain number of new cases per day, we will have to subtract cases from the prior row (day before) as below.
+
+```{r add new_cases column}
+nyt_covid_new <- nyt_covid %>%
+  group_by(
+    state
+    ) %>%
+  mutate(
+    new_cases = cases - lag(cases, default = first(cases), order_by = date)
+  )
+```
+
+```{r EDA plot on new data}
+ny_state_covid_new <- nyt_covid_new %>%
+  group_by(
+    state
+    ) %>%
+  filter(
+    state == 'New York'
+  ) %>% 
+  ggplot() +
+  aes(x = date, y = new_cases) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x = "Date",
+       y = " Number of New Cases",
+       title = "Number of New Cases per Day in New York State") +
+  scale_y_continuous(labels = scales::comma)
+ny_state_covid_new
+```
+
+
+
+
+
+
