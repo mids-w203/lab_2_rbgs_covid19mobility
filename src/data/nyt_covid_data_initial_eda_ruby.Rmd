@@ -28,7 +28,8 @@ library(data.table)
 
 ```{r load data, message=FALSE, warning=FALSE}
 nyt_covid_data <- fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
-jhu_covid_data <- fread("https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/JHU_USCountymap/df_Counties2020.csv")
+# jhu_covid_data <- fread("https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/JHU_USCountymap/df_Counties2020.csv")
+head(nyt_covid_data)
 ```
 
 # Data Issues
@@ -50,6 +51,7 @@ nyt_covid <- nyt_covid_data %>%
     date
     ,state
     ,cases
+    ,deaths
   )
 
 typeof(nyt_covid_data$date) # R's default date format is in integer
@@ -87,8 +89,19 @@ nyt_covid_new <- nyt_covid %>%
     ) %>%
   mutate(
     new_cases = cases - lag(cases, default = first(cases), order_by = date)
+    ,new_deaths = deaths - lag(deaths, default = first(cases), order_by = date)
   )
+summary(nyt_covid_new)
 ```
+
+```{r EDA on negative values}
+nyt_covid_negative <- nyt_covid_new %>% 
+  filter(
+    new_cases < 0 | new_deaths < 0
+  )
+nyt_covid_negative # negative values are assumed to be corrective adjustments on previous day erroneous data entry
+```
+
 
 ```{r EDA plot on new data}
 ny_state_covid_new <- nyt_covid_new %>%
@@ -108,6 +121,13 @@ ny_state_covid_new <- nyt_covid_new %>%
   scale_y_continuous(labels = scales::comma)
 ny_state_covid_new
 ```
+
+```{r write transformed data to csv}
+write.csv(nyt_covid_new,
+           file = paste0("~/W203_RDataHub/lab_2-rbgs/data/interim/",
+                          "nyt_covid.csv"))
+```
+
 
 
 
