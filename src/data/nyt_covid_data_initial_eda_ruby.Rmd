@@ -34,12 +34,14 @@ head(nyt_covid_data)
 
 # Data Issues
 https://github.com/nytimes/covid-19-data/blob/master/PROBABLE-CASES-NOTE.md
+
 - At the beginning of COVID in US, most health departments and CDC only considered acase to be 'confirmed' as COVID with a positive lab test result. Recently, 'probable' cases are reported which may affect data accuracy as NYT has changed the dataset to start including 'probable' cases when available. NYT is working on updating past data to include 'probable' cases. Thus, in some states, the data will be revised to show a higher number of cases on past dates.
 
 
-```{r nyt_covid_data EDA, echo=FALSE}
+```{r nyt_covid_data EDA}
 summary(nyt_covid_data) # earliest date record 2020-01-21 and updating on a daily basis
-unique(nyt_covid_data$state) # 55 states - 4 additional US territories (Guam, Northern Mariana Islands, Virgin Islands and Puerto Rico) compared to CUSP data
+unique(nyt_covid_data$state) # 55 states - 4 additional US territories (Guam, Northern Mariana Islands, 
+                                              #Virgin Islands and Puerto Rico) compared to CUSP data
 names(nyt_covid_data) # 5 columns (date, state, fips, cases, deaths)
 
 # convert date strings to dates
@@ -114,7 +116,7 @@ nyt_covid_negative <- nyt_covid_new %>%
   filter(
     new_cases < 0 | new_deaths < 0
   )
-nyt_covid_negative # negative values are assumed to be corrective adjustments on previous day erroneous data entry
+nyt_covid_negative # negative values are assumed to be corrective adjustments on previous erroneous data entry
 ```
 
 
@@ -135,9 +137,6 @@ ny_state_covid_new <- nyt_covid_new %>%
        title = "Number of New Cases per Day in New York State") +
   scale_y_continuous(labels = scales::comma)
 ny_state_covid_new
-```
-```{r check state names}
-unique(nyt_covid_new$state)
 ```
 
 
