@@ -79,14 +79,18 @@ ny_state_covid <- nyt_covid %>%
 ny_state_covid
 ```
 ```{r check date continuity for each state}
-nyt_covid %>%
+date_check <- nyt_covid %>%
   group_by(state) %>%
   summarise(
-    date_count = n(), 
+    data_count = n(), 
     min_date = min(date), 
     max_date = max(date),
-    diff = date_count - (max_date- min_date + 1)
-  )
+    diff = data_count - (max_date- min_date + 1)
+  ) %>% 
+  arrange(desc(min_date))
+
+date_check
+# date_check %$% max(min_date)
 ```
 
 
