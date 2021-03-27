@@ -1,0 +1,81 @@
+---
+title: "Initial EDA - Lab 2: Regression to Study the Spread of Covid-19"
+author: 'Ruby Han'
+date: "03/21/2021"
+output: pdf_document
+---
+
+```{r load packages, message=FALSE}
+library(tidyverse)
+library(magrittr)
+library(ggplot2)
+library(patchwork)
+library(sandwich)
+library(lmtest)
+library(knitr) # kable
+theme_set(theme_minimal())
+knitr::opts_chunk$set(dpi = 300)
+
+# assemble multiple plots
+library(gridExtra)
+
+# read excel format
+library(readxl)
+```
+
+```{r load data, message=FALSE, warning=FALSE}
+mobility_data <- read.csv("mobility.csv")
+cusp_ui_data <- read_excel("CUSP.xlsx", sheet = "Unemployment Insurance")
+```
+
+```{r mobility EDA, echo=FALSE}
+
+# replace blanks with NAs
+mobility_data$sub_region_1[mobility_data$sub_region_1 == ""] <- NA
+count(mobility_data, is.na(mobility_data$sub_region_1)) # 396 NAs in states
+
+# drop 396 missing states
+mobility_data <- mobility_data %>% drop_na(sub_region_1)
+
+summary(mobility_data$retail_and_recreation_percent_change_from_baseline) # 340,463 NAs
+
+# rename columns and reformat date
+mobility <- mobility_data %>% 
+  rename(
+    state = sub_region_1
+    ,county = sub_region_2
+  ) %>% 
+  mutate(
+    month = format(as.Date(date), '%m')
+    ,year = format(as.Date(date), '%Y')
+    ,dow = weekdays(as.Date(date))
+  )
+```
+
+```{r mobility state NA EDA}
+state_na <- mobility %>%
+  group_by(
+    state
+    ) %>%
+  summarise(
+    total_na = sum(is.na(retail_and_recreation_percent_change_from_baseline)) 
+    ,total_obs = n(), 
+    ,percent_na = round(total_na/total_obs*100, 2)
+    ) %>%
+  ggplot(aes(x = reorder(state, -percent_na), y = percent_na)) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x = "State",
+       y = "NAs (%)",
+       title = "Percent NAs by State")
+  # arrange(desc(percent_na)) %>% 
+  # select(
+  #   state
+  #   ,percent_na
+  # )
+state_na
+```
+
+
+
+
