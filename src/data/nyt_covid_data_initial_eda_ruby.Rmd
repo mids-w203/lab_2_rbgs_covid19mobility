@@ -66,10 +66,10 @@ ny_state_covid <- nyt_covid %>%
     state
     ) %>%
   filter(
-    state == 'New York'
-  ) %>% 
+    state == 'New York' | state == 'California' | state == 'Texas'
+  ) %>%
   ggplot() +
-  aes(x = date, y = cases) +
+  aes(x = date, y = cases, color=state) +
   geom_col() +
   theme(axis.text.x = element_text(angle = 90)) +
   labs(x = "Date",
@@ -78,6 +78,16 @@ ny_state_covid <- nyt_covid %>%
   scale_y_continuous(labels = scales::comma)
 ny_state_covid
 ```
+```{r}
+nyt_covid %>%
+  group_by(state) %>%
+  summarise(date_count = n(), 
+            min_date = min(date), 
+            max_date = max(date),
+            diff = max_date- min_date +1,
+            date_diff = date_count-diff)
+```
+
 
 # NYT data
 Based on our plotting using NYT COVID dataset, we obtain cumulative cases for any given day in each state. In order to obtain number of new cases per day, we will have to subtract cases from the prior row (day before) as below.
