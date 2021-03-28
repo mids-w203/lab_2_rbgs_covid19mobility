@@ -1,0 +1,403 @@
+---
+title: "cleaning"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(magrittr)
+library(ggplot2)
+library(patchwork)
+library(rlang)
+```
+
+```{r set graphing theme}
+minimal_theme_GL <- theme(
+      axis.text = element_text(color="#959292"),
+      axis.line = element_line(color = "#959292", size = .25), 
+      axis.title = element_text(color="#959292"),
+      axis.ticks = element_line(color = "#959292", size = .25),
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(), 
+      panel.background = element_blank(), 
+      plot.title = element_text(color="#959292", size = 11),
+      plot.subtitle = element_text(color="#959292"),
+      legend.text = element_text(color="#959292"), 
+      legend.title = element_blank(), 
+      # legend.justification=c(0,1), 
+      # legend.position=c(0,1), 
+      legend.direction = 'vertical')
+```
+
+
+Save Raw Data in DF
+```{r pull raw data}
+mobility_raw <- read.csv("~/mids_w203_sp_21/lab_2-rbgs/data/raw/2020_US_Region_Mobility_Report.csv")
+```
+
+Creating some Funcitons to Aide in the cleaning process
+```{r define functions}
+
+count_blank_na <- function(in_df, column_name = in_df[1]) {
+  # Purpose: quick count of blanks or NA values in a column
+  # Input: df, column_name to be checked 
+  # - defaults to first column if none provided
+  # Output: number of blanks in column
+  
+  in_df %>%
+  filter({{ column_name }} == "" | 
+           is.na({{ column_name }})) %>%
+  nrow() %>% cat("\n")
+}
+
+add_date_values <- function(in_df, date_field = date) {
+  # Purpose: augmenting "date" with common fields - month, year, day of week
+  # Input: in_df - dataframe, date_field - name of column with date
+  # - date_field will look for "date" column as default
+  # Output: in_df, with columns added for month, year, and dow
+  
+  in_df %>%
+    mutate(month = format(as.Date({{date_field}}), "%m"),
+         # month = format(as.Date({{date_field}}), "%m-%Y"),
+         year = format(as.Date({{date_field}}), "%Y"),
+         dow = weekdays(as.Date({{date_field}})))
+}
+
+plot_missing_histogram <- function(in_df, var, lod, lab_x = "", lab_y = "", lab_title = "", y_reorder = TRUE) {
+  # Purpose: wrap common NA histogram graphing for easy re-use
+  # Input: in_df - dataframe, var - variable of interest, lod - level of detail (what to group by), 
+  #       lab_x - x label, lab_y - y label, lab_title - chart title, y_reorder - Boolean, whether or not to sort
+  #       x axis by descending y values
+  # Output: histogram, formatted
+  
+  if(y_reorder) {
+    in_df %>%
+      group_by({{lod}}) %>%
+      summarise(total_na = sum(is.na({{var}})), 
+                total_obs = n(), 
+                pct_na = total_na/total_obs) %>%
+      ggplot(aes(x = reorder({{lod}}, -pct_na), y = pct_na)) +
+      geom_bar(stat = 'identity') + 
+      theme(axis.text.x = element_text(angle = 90)) +
+      labs(x = lab_x, 
+           y = lab_y,
+           title = lab_title) +
+      minimal_theme_GL
+    } else {
+    in_df %>%
+      group_by({{lod}}) %>%
+      summarise(total_na = sum(is.na({{var}})), 
+                total_obs = n(), 
+                pct_na = total_na/total_obs) %>%
+      ggplot(aes(x = {{lod}}, y = pct_na)) +
+      geom_bar(stat = 'identity') + 
+      theme(axis.text.x = element_text(angle = 90)) +
+      labs(x = lab_x, 
+           y = lab_y,
+           title = lab_title) +
+      minimal_theme_GL
+    }
+}
+```
+
+
+Check Blank states
+```{r check for blank states, }
+
+# count_blank_na function was here
+
+mobility_raw %>% 
+  rename(state = sub_region_1, county = sub_region_2) %>%
+  #select(state) %>% 
+  count_blank_na(state)
+```
+
+Tidy up the data
+
+1. rename some variables for ease of use
+2. filter out observations where state = Blank (~400 values out of 1M)
+  a. Note that there are no other columns to add context to help re-map
+3. Only keep quantitative variables of interest - retail and recreation change, park change
+4. Add a few new columns to separate out Year, month, and day of week (not for final csv, just to help in exploration)
+5. Keep the columns of interest
+
+*AR: why do we have missing states?*
+*AR: why do we have missing retail_change?*
+```{r rename some columns and filter out blanks}
+
+# add_date_values function was here
+
+mobility <- mobility_raw %>% 
+  rename(state = sub_region_1, 
+         county = sub_region_2, 
+         retail_rec_change = retail_and_recreation_percent_change_from_baseline, 
+         parks_change = parks_percent_change_from_baseline) %>%
+  filter(state != "") %>% 
+  add_date_values %>% # Only for initial exploration, not CSV output
+  select(state, date, year, month, dow,
+         # census_fips_code, county, place_id, # keeping for possible interim checks
+         retail_rec_change, parks_change)
+```
+
+Check out NA's in quantitative variable
+*AR: what do we do about states with such a high percentage of NA?*
+```{r explore NAs by state and dates}
+# Check # of NAs, and distribution
+summary(mobility %>% select(retail_rec_change))
+summary(mobility %>% select(parks_change))
+
+# check # NAs 
+for(i in c("retail_rec_change", "parks_change")) {
+  print(i)
+  mobility %>%
+    count_blank_na(get(i))
+}
+```
+
+Graph out some of these NAs, seeing if there are any patterns, or if they are random
+```{r explore NAs by state and dates - graphical}
+# plot_missing_histogram function was here
+
+# Graphs for different types of NAs
+state_NA <- mobility %>% 
+  plot_missing_histogram(
+                         # var = parks_change,
+                         var = retail_rec_change, 
+                         lod = state, 
+                         lab_x = "State", 
+                         lab_y = "% of values observations with NA", 
+                         lab_title = "% of values missing by State")
+
+month_NA <- mobility %>% 
+  mutate(year_mo = paste(year, month, sep = "_")) %>%
+  plot_missing_histogram(
+                         # var = parks_change,
+                         var = retail_rec_change, 
+                         lod = year_mo, 
+                         lab_x = "Year - Month", 
+                         lab_y = "% of values observations with NA", 
+                         lab_title = "% of values missing by Month",
+                         y_reorder = FALSE)
+
+first_NA <- mobility %>% 
+  mutate(year_mo = paste(year, month, sep = "_")) %>%
+  filter(year_mo %in% c("2020_02", "2020_03")) %>%
+  plot_missing_histogram(
+                         # var = parks_change,
+                         var = retail_rec_change, 
+                         lod = date, 
+                         lab_x = "Date", 
+                         lab_y = "% of values observations with NA", 
+                         lab_title = "% of values missing by Date",
+                         y_reorder = FALSE) +
+  labs(subtitle = "Filtered to first two months with low % of NA")
+
+dow_NA <- mobility %>% 
+  plot_missing_histogram(
+                         # var = parks_change,
+                         var = retail_rec_change,
+                         lod = dow, 
+                         lab_x = "Day of Week", 
+                         lab_y = "% of values observations with NA", 
+                         lab_title = "% of values missing by Day of Week",
+                         y_reorder = TRUE)
+
+# Show graphs
+state_NA
+month_NA
+first_NA
+dow_NA
+# (state_NA | month_NA) / 
+#   (first_NA | dow_NA)
+```
+Old Charting Code (To delete)
+```{r, echo = FALSE}
+# state_NA <- mobility %>%
+#   group_by(state) %>%
+#   summarise(total_na = sum(is.na(retail_rec_change)), 
+#             total_obs = n(), 
+#             pct_na = total_na/total_obs) %>%
+#   ggplot(aes(x = reorder(state, -pct_na), y = pct_na)) + 
+#   geom_bar(stat = 'identity') + 
+#   theme(axis.text.x = element_text(angle = 90)) +
+#   labs(x = "State", 
+#        y = "% of values observations with NA",
+#        title = "% of values missing by State") +
+#   minimal_theme_GL
+
+# month_NA <- mobility %>%
+#   mutate(year_mo = paste(year, month, sep = "_")) %>%
+#   group_by(year_mo) %>%
+#   summarise(total_na = sum(is.na(retail_rec_change)), 
+#             total_obs = n(), 
+#             pct_na = total_na/total_obs) %>%
+#   ggplot(aes(x = year_mo, y = pct_na)) +
+#   geom_bar(stat = 'identity') +
+#   theme(axis.text.x = element_text(angle = 90)) +
+#   labs(x = "Year - Month", 
+#        y = "% of values observations with NA",
+#        title = "% of values missing by Month") +
+#   minimal_theme_GL
+
+# first_NA <- mobility %>%
+#   mutate(year_mo = paste(year, month, sep = "_")) %>%
+#   filter(year_mo %in% c("2020_02", "2020_03")) %>%
+#   group_by(date) %>%
+#   summarise(total_na = sum(is.na(retail_rec_change)), 
+#             total_obs = n(), 
+#             pct_na = total_na/total_obs, 
+#             .groups = 'drop') %>%
+#   ggplot(aes(x = date, y = pct_na)) +
+#   geom_bar(stat = 'identity') +
+#   theme(axis.text.x = element_text(angle = 90)) +
+#   labs(x = "Date", 
+#        y = "% of values observations with NA",
+#        title = "% of values missing by Date", 
+#        subtitle = "Filtered to first two months with low % of NA") +
+#   minimal_theme_GL
+
+# dow_NA <- mobility %>%
+#   group_by(dow) %>%
+#   summarise(total_na = sum(is.na(retail_rec_change)), 
+#             total_obs = n(), 
+#             pct_na = total_na/total_obs, 
+#             .groups = 'drop') %>%
+#   ggplot(aes(x = reorder(dow, -pct_na), y = pct_na)) +
+#   geom_bar(stat = 'identity') +
+#   theme(axis.text.x = element_text(angle = 90)) +
+#   labs(x = "Day of Week", 
+#        y = "% of values observations with NA",
+#        title = "% of values missing by Day of Week") +
+#   minimal_theme_GL
+```
+
+Comparing distribution of 0s across months to NAs across months
+```{r comparing 0s to NAs}
+mobility %>%
+  filter(retail_rec_change == 0) %>%
+  mutate(year_mo = paste(year, month, sep = "_")) %>%
+  select(year_mo) %>%
+  ggplot(aes(x = year_mo)) + geom_bar() + theme(axis.text.x = element_text(angle = 90))
+
+
+mobility %>%
+  filter(is.na(retail_rec_change)) %>%
+  mutate(year_mo = paste(year, month, sep = "_")) %>%
+  select(year_mo) %>%
+  ggplot(aes(x = year_mo)) + geom_bar() + theme(axis.text.x = element_text(angle = 90))
+```
+
+
+Aggregating over Date and state, averaging all of the county `retail_rec_change`s
+```{r aggregate by state two ways}
+# Assuming NA's are bad, and we want to remove them
+mobility_agg <- mobility %>%
+  group_by(state, date) %>%
+  # group_by(state, date, year, month) %>%
+  summarise(avg_retail_rec_change = mean(retail_rec_change, na.rm = TRUE),
+            avg_parks_change = mean(parks_change, na.rm = TRUE),
+            .groups = 'drop') %>%
+  select(state, date, avg_retail_rec_change, avg_parks_change)
+
+# Assuming NA's are missing 0s, and we want to replace them with 0
+mobility_agg_wNA <- mobility %>%
+  replace_na(list(retail_rec_change = 0, parks_change = 0)) %>%
+  group_by(state, date) %>%
+  # group_by(state, date, year, month) %>%
+  summarise(avg_retail_rec_change = mean(retail_rec_change),
+            avg_parks_change = mean(parks_change),
+            .groups = 'drop') %>%
+  select(state, date, avg_retail_rec_change, avg_parks_change)
+```
+Check if all states have same number of observations
+```{r check number of observations}
+mobility_agg %>%
+  group_by(state) %>%
+  summarise(date_count = n(), 
+            min_date = min(date), 
+            max_date = max(date),
+            date_range = max(date) - min(date),
+            check = (max(date) - min(date)) - date_count = n())
+```
+
+Distribution of each quantitative variable
+```{r check distributions}
+mobility_agg %>%
+  filter(state == "California") %>%
+  
+  add_date_values() %>%
+  group_by(month) %>%
+  summarise(measure = mean(avg_retail_rec_change)) %>%
+  select(measure, month) %>%
+  ggplot(aes(x = month, y = jitter(measure))) + 
+  geom_point() + 
+  labs(
+    x = "change in retail/recreation",
+    title = "Distribution of retail/recreation"
+  ) +
+  minimal_theme_GL
+
+mobility_agg %>%
+  filter(state == "California") %>%
+  
+  add_date_values() %>%
+  group_by(month) %>%
+  summarise(measure = mean(avg_parks_change)) %>%
+  select(measure, month) %>%
+  ggplot(aes(x = month, y = jitter(measure))) + 
+  geom_point() + 
+  labs(
+    x = "change in retail/recreation",
+    title = "Distribution of retail/recreation"
+  ) +
+  minimal_theme_GL
+
+
+retail_hist <- mobility_agg %>%
+  select(avg_retail_rec_change) %>%
+  ggplot(aes(x = avg_retail_rec_change)) + 
+  geom_histogram(bins = 50) + 
+  labs(
+    x = "change in retail/recreation",
+    title = "Distribution of retail/recreation"
+  ) +
+  minimal_theme_GL
+
+parks_hist <- mobility_agg %>%
+  select(avg_parks_change) %>%
+  ggplot(aes(x = avg_parks_change)) + 
+  geom_histogram(bins = 50) + 
+  labs(
+    x = "change in parks",
+    title = "Distribution of retail/recreation"
+  ) +
+  minimal_theme_GL
+
+retail_hist / 
+  parks_hist
+```
+
+```{r}
+group_by({{lod}}) %>%
+      summarise(total_na = sum(is.na({{var}})), 
+                total_obs = n(), 
+                pct_na = total_na/total_obs) %>%
+      ggplot(aes(x = reorder({{lod}}, -pct_na), y = pct_na)) +
+      geom_bar(stat = 'identity') + 
+      theme(axis.text.x = element_text(angle = 90)) +
+      labs(x = lab_x, 
+           y = lab_y,
+           title = lab_title) +
+      minimal_theme_GL
+```
+
+
+
+Write transformed data for use in analysis
+```{r}
+write.csv(mobility_agg, 
+# write.csv(mobility_agg_wNA,
+           file = paste0("~/mids_w203_sp_21/lab_2-rbgs/data/interim/",
+                          "mobility.csv"))
+```
+

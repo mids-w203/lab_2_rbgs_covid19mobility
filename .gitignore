@@ -78,6 +78,9 @@ target/
 # exclude data from source control by default
 # /data/ # GL turning off 3/18 to show data file
 
+# hiding this big file so as not to accidentally load it
+2020_US_Region_Mobility_Report.csv
+
 # Mac OS-specific storage files
 .DS_Store
 
