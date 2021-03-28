@@ -58,6 +58,7 @@ add_date_values <- function(in_df, date_field = date) {
   
   in_df %>%
     mutate(month = format(as.Date({{date_field}}), "%m"),
+         # month = format(as.Date({{date_field}}), "%m-%Y"),
          year = format(as.Date({{date_field}}), "%Y"),
          dow = weekdays(as.Date({{date_field}})))
 }
@@ -314,11 +315,43 @@ mobility_agg %>%
   group_by(state) %>%
   summarise(date_count = n(), 
             min_date = min(date), 
-            max_date = max(date))
+            max_date = max(date),
+            date_range = max(date) - min(date),
+            check = (max(date) - min(date)) - date_count = n())
 ```
 
 Distribution of each quantitative variable
 ```{r check distributions}
+mobility_agg %>%
+  filter(state == "California") %>%
+  
+  add_date_values() %>%
+  group_by(month) %>%
+  summarise(measure = mean(avg_retail_rec_change)) %>%
+  select(measure, month) %>%
+  ggplot(aes(x = month, y = jitter(measure))) + 
+  geom_point() + 
+  labs(
+    x = "change in retail/recreation",
+    title = "Distribution of retail/recreation"
+  ) +
+  minimal_theme_GL
+
+mobility_agg %>%
+  filter(state == "California") %>%
+  
+  add_date_values() %>%
+  group_by(month) %>%
+  summarise(measure = mean(avg_parks_change)) %>%
+  select(measure, month) %>%
+  ggplot(aes(x = month, y = jitter(measure))) + 
+  geom_point() + 
+  labs(
+    x = "change in retail/recreation",
+    title = "Distribution of retail/recreation"
+  ) +
+  minimal_theme_GL
+
 
 retail_hist <- mobility_agg %>%
   select(avg_retail_rec_change) %>%
