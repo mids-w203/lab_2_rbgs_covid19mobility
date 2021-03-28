@@ -1,0 +1,63 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+setwd(".")
+source("generic_functions.R")
+library(dplyr)
+library(janitor)
+```
+
+
+```{r}
+df <- read.csv(file = '../data/raw/CUSP/stay_at_home.csv')
+df_stay_at_home <- df %>% clean_names() %>% mutate(
+  stay_at_home_shelter_in_place = as.Date(stay_at_home_shelter_in_place, format= '%m/%d/%Y'),
+  stay_at_home_order_issued_but_did_not_specifically_restrict_movement_of_the_general_public = as.Date(stay_at_home_order_issued_but_did_not_specifically_restrict_movement_of_the_general_public, format= '%m/%d/%Y'),
+end_stay_at_home_shelter_in_place = as.Date(end_stay_at_home_shelter_in_place, format= '%m/%d/%Y') 
+  )%>%filter(row_number() <= n()-1) # Removing last row because it has the totals.
+
+```
+
+```{r}
+# Adding duration for days
+df_stay_at_home['duration_days'] = df_stay_at_home['end_stay_at_home_shelter_in_place'] - df_stay_at_home['stay_at_home_shelter_in_place']
+df_stay_at_home = subset(df_stay_at_home,select = -c(x,notes))
+write.csv2(df_stay_at_home,'/home/jovyan/GIT/W203/lab_2-rbgs/data/interim/CUSP/stay_at_home.csv')
+```
+
+```{r}
+df <- read.csv(file = '../data/raw/CUSP/face_masks.csv')
+df_face_masks <- df %>% clean_names()%>%filter(row_number() <= n()-1) %>% 
+  mutate(
+    public_face_mask_mandate = as.Date(public_face_mask_mandate,'%m/%d/%Y'),
+    end_face_mask_mandate = as.Date(end_face_mask_mandate,'%m/%d/%Y'),
+    attempt_by_state_government_to_prevent_local_governments_from_implementing_face_mask_orders = as.Date(attempt_by_state_government_to_prevent_local_governments_from_implementing_face_mask_orders,'%m/%d/%Y'),
+  second_mandate_for_facemasks_by_all_individuals_in_public_places = as.Date(second_mandate_for_facemasks_by_all_individuals_in_public_places,'%m/%d/%Y'),
+  business_face_mask_mandate = as.Date(business_face_mask_mandate,'%m/%d/%Y')
+    ) %>%
+  filter(row_number() <= n()-1)
+df_face_masks = subset(df_face_masks,select = -c(x,notes))
+write.csv2(df_stay_at_home,'/home/jovyan/GIT/W203/lab_2-rbgs/data/interim/CUSP/face_masks.csv')
+```
+
+```{r}
+df <- read.csv(file = '../data/raw/CUSP/closures_and_reopening.csv')
+df <- df %>% clean_names() %>% filter(row_number() <= n()-1)
+df_closures_and_reopening = subset(df,select = -c(42:52))
+df_closures_and_reopening <- df_closures_and_reopening %>% mutate_at(vars(-1,-2,-3,-13,-17), as.Date, format='%m/%d/%Y')
+write.csv2(df_stay_at_home,'/home/jovyan/GIT/W203/lab_2-rbgs/data/interim/CUSP/closures_and_reopening.csv')
+```
+
+```{r}
+# Quarantine.mandate.ended This column has dates in the format 5/8/20 and 5/8/2020. This makes converting it to date a little tricky.
+# Will work on this if we need the dataset
+# df <- read.csv(file = '../data/raw/CUSP/interstate_travel_quarantines.csv')
+# df <- df %>% clean_names() %>% filter(row_number() <= n()-1)
+# df_interstate_travel_quarantines = subset(df,select = -c(7:8))
+# df_interstate_travel_quarantines <-  df_interstate_travel_quarantines %>% mutate_at(vars(4:6), as.Date, format='%m/%d/%Y')
+# df_interstate_travel_quarantines
+```
+
