@@ -1,52 +1,52 @@
-"";"state";"state_abbreviation";"state_fips_code";"stay_at_home_shelter_in_place";"religious_gatherings_exempt_without_clear_social_distance_mandate";"stay_at_home_order_issued_but_did_not_specifically_restrict_movement_of_the_general_public";"end_stay_at_home_shelter_in_place";"duration_days"
-"1";"Alabama";"AL";1;2020-04-04;0;NA;2020-04-30;26
-"2";"Alaska";"AK";2;2020-03-28;0;NA;2020-04-24;27
-"3";"Arizona";"AZ";4;2020-03-31;1;NA;2020-05-16;46
-"4";"Arkansas";"AR";5;NA;0;NA;NA;NA
-"5";"California";"CA";6;2020-03-19;0;NA;2021-01-25;312
-"6";"Colorado";"CO";8;2020-03-26;1;NA;2020-04-27;32
-"7";"Connecticut";"CT";9;NA;0;2020-03-23;2020-05-20;NA
-"8";"Delaware";"DE";10;2020-03-24;1;NA;2020-06-01;69
-"9";"District of Columbia";"DC";11;2020-04-01;0;NA;2020-05-29;58
-"10";"Florida";"FL";12;2020-04-03;1;NA;2020-05-18;45
-"11";"Georgia";"GA";13;2020-04-03;0;NA;2020-05-01;28
-"12";"Hawaii";"HI";15;2020-03-25;0;2020-05-07;2020-05-31;67
-"13";"Idaho";"ID";16;2020-03-25;0;NA;2020-05-01;37
-"14";"Illinois";"IL";17;2020-03-21;0;NA;2020-05-29;69
-"15";"Indiana";"IN";18;2020-03-25;0;NA;2020-05-18;54
-"16";"Iowa";"IA";19;NA;0;NA;NA;NA
-"17";"Kansas";"KS";20;2020-03-30;1;NA;2020-05-04;35
-"18";"Kentucky";"KY";21;NA;0;2020-03-26;2020-06-29;NA
-"19";"Louisiana";"LA";22;2020-03-23;0;NA;2020-05-15;53
-"20";"Maine";"ME";23;2020-04-02;0;NA;2020-05-31;59
-"21";"Maryland";"MD";24;2020-03-30;0;NA;2020-05-15;46
-"22";"Massachusetts";"MA";25;2020-03-24;0;NA;2020-05-18;55
-"23";"Michigan";"MI";26;2020-03-24;1;NA;2020-06-01;69
-"24";"Minnesota";"MN";27;2020-03-28;0;NA;2020-05-18;51
-"25";"Mississippi";"MS";28;2020-04-03;0;NA;2020-04-27;24
-"26";"Missouri";"MO";29;2020-04-06;1;NA;2020-05-04;28
-"27";"Montana";"MT";30;2020-03-28;0;NA;2020-04-26;29
-"28";"Nebraska";"NE";31;NA;0;NA;NA;NA
-"29";"Nevada";"NV";32;2020-03-31;0;NA;2020-05-09;39
-"30";"New Hampshire";"NH";33;2020-03-28;0;NA;2020-06-16;80
-"31";"New Jersey";"NJ";34;2020-03-21;0;NA;2020-06-09;80
-"32";"New Mexico";"NM";35;2020-03-24;1;NA;NA;NA
-"33";"New York";"NY";36;2020-03-22;1;NA;2020-06-27;97
-"34";"North Carolina";"NC";37;2020-03-30;1;NA;2020-05-22;53
-"35";"North Dakota";"ND";38;NA;0;NA;NA;NA
-"36";"Ohio";"OH";39;2020-03-24;1;NA;2020-05-20;57
-"37";"Oklahoma";"OK";40;NA;0;2020-04-01;2020-05-15;NA
-"38";"Oregon";"OR";41;2020-03-23;0;NA;2020-06-19;88
-"39";"Pennsylvania";"PA";42;2020-04-01;1;NA;2020-06-05;65
-"40";"Rhode Island";"RI";44;2020-03-28;0;NA;2020-05-09;42
-"41";"South Carolina";"SC";45;2020-04-07;1;NA;2020-05-04;27
-"42";"South Dakota";"SD";46;NA;0;NA;NA;NA
-"43";"Tennessee";"TN";47;2020-04-02;1;NA;2020-04-29;27
-"44";"Texas";"TX";48;NA;1;2020-04-02;2020-05-01;NA
-"45";"Utah";"UT";49;NA;0;NA;NA;NA
-"46";"Vermont";"VT";50;2020-03-24;0;NA;2020-05-15;52
-"47";"Virginia";"VA";51;2020-03-30;0;NA;2020-05-29;60
-"48";"Washington";"WA";53;2020-03-23;0;NA;2020-06-01;70
-"49";"West Virginia";"WV";54;2020-03-24;1;NA;2020-05-05;42
-"50";"Wisconsin";"WI";55;2020-03-25;0;NA;2020-05-13;49
-"51";"Wyoming";"WY";56;NA;0;NA;NA;NA
+"";"state";"state_abbreviation";"state_fips_code";"public_face_mask_mandate";"second_mandate_for_facemasks_by_all_individuals_in_public_places";"face_mask_mandate_enforced_by_fines";"face_mask_mandate_enforced_by_criminal_charge_citation";"no_legal_enforcement_of_face_mask_mandate";"business_face_mask_mandate";"end_face_mask_mandate";"attempt_by_state_government_to_prevent_local_governments_from_implementing_face_mask_orders"
+"1";"Alabama";"AL";1;2020-07-16;NA;0;0;1;2020-05-11;NA;NA
+"2";"Alaska";"AK";2;2020-04-24;NA;1;1;0;2020-04-24;2020-05-22;NA
+"3";"Arizona";"AZ";4;NA;NA;0;0;0;2020-05-08;NA;2020-03-30
+"4";"Arkansas";"AR";5;2020-07-20;NA;1;1;0;2020-05-11;NA;NA
+"5";"California";"CA";6;2020-06-18;NA;0;0;1;2020-05-05;NA;NA
+"6";"Colorado";"CO";8;2020-07-16;NA;0;0;0;2020-04-23;NA;NA
+"7";"Connecticut";"CT";9;2020-04-20;NA;0;0;1;2020-04-03;NA;NA
+"8";"Delaware";"DE";10;2020-04-28;NA;1;1;0;2020-05-01;NA;NA
+"9";"District of Columbia";"DC";11;2020-04-17;NA;1;0;0;2020-04-15;NA;NA
+"10";"Florida";"FL";12;NA;NA;0;0;0;2020-05-11;NA;NA
+"11";"Georgia";"GA";13;NA;NA;0;0;0;2020-04-27;NA;2020-07-15
+"12";"Hawaii";"HI";15;NA;NA;1;1;0;2020-06-10;NA;NA
+"13";"Idaho";"ID";16;NA;NA;0;0;0;NA;NA;NA
+"14";"Illinois";"IL";17;2020-05-01;NA;1;0;0;2020-05-01;NA;NA
+"15";"Indiana";"IN";18;2020-07-27;NA;0;0;0;2020-05-01;NA;NA
+"16";"Iowa";"IA";19;2020-11-16;NA;0;0;0;2020-11-16;2021-02-07;NA
+"17";"Kansas";"KS";20;2020-07-03;NA;0;0;1;2020-07-03;NA;NA
+"18";"Kentucky";"KY";21;2020-05-11;NA;0;0;1;2020-05-11;NA;NA
+"19";"Louisiana";"LA";22;2020-08-07;NA;1;1;0;2020-05-01;NA;NA
+"20";"Maine";"ME";23;2020-05-01;NA;1;0;0;2020-05-01;NA;NA
+"21";"Maryland";"MD";24;2020-04-18;NA;1;1;0;2020-04-18;NA;NA
+"22";"Massachusetts";"MA";25;2020-05-06;NA;1;0;0;2020-05-06;NA;NA
+"23";"Michigan";"MI";26;2020-04-27;NA;1;1;0;2020-04-26;NA;NA
+"24";"Minnesota";"MN";27;2020-07-24;NA;0;0;0;2020-06-01;NA;NA
+"25";"Mississippi";"MS";28;2020-08-05;NA;0;0;1;2020-05-07;2020-09-30;NA
+"26";"Missouri";"MO";29;NA;NA;0;0;0;NA;NA;NA
+"27";"Montana";"MT";30;NA;NA;0;0;0;2020-07-15;2021-02-12;NA
+"28";"Nebraska";"NE";31;NA;NA;0;0;0;2020-05-04;NA;2020-05-29
+"29";"Nevada";"NV";32;2020-06-26;NA;1;1;0;2020-05-09;NA;NA
+"30";"New Hampshire";"NH";33;2020-11-20;NA;0;0;0;2020-05-01;NA;NA
+"31";"New Jersey";"NJ";34;2020-04-08;NA;1;1;0;2020-04-08;NA;NA
+"32";"New Mexico";"NM";35;2020-05-15;NA;0;0;1;2020-05-06;NA;NA
+"33";"New York";"NY";36;2020-04-17;NA;1;0;0;2020-04-17;NA;NA
+"34";"North Carolina";"NC";37;2020-06-26;NA;0;1;0;2020-06-26;NA;NA
+"35";"North Dakota";"ND";38;2020-11-14;NA;0;0;0;2020-04-28;2021-01-18;NA
+"36";"Ohio";"OH";39;2020-07-23;NA;0;0;1;2020-04-29;NA;NA
+"37";"Oklahoma";"OK";40;NA;NA;0;0;0;NA;NA;NA
+"38";"Oregon";"OR";41;2020-07-01;NA;0;0;1;2020-05-09;NA;NA
+"39";"Pennsylvania";"PA";42;2020-07-01;NA;0;1;0;2020-04-19;NA;NA
+"40";"Rhode Island";"RI";44;2020-04-18;NA;0;0;1;2020-04-18;NA;NA
+"41";"South Carolina";"SC";45;NA;NA;1;1;0;2020-08-03;NA;NA
+"42";"South Dakota";"SD";46;NA;NA;0;0;0;NA;NA;NA
+"43";"Tennessee";"TN";47;NA;NA;0;0;0;NA;NA;NA
+"44";"Texas";"TX";48;2020-07-03;NA;1;0;0;2020-05-08;2021-03-10;2020-04-27
+"45";"Utah";"UT";49;2020-04-10;2020-11-09;0;0;1;2020-04-10;2020-05-01;NA
+"46";"Vermont";"VT";50;2020-08-01;NA;0;0;1;2020-04-17;NA;NA
+"47";"Virginia";"VA";51;2020-05-29;NA;0;1;0;2020-05-29;NA;NA
+"48";"Washington";"WA";53;2020-06-26;NA;1;1;0;2020-05-04;NA;NA
+"49";"West Virginia";"WV";54;2020-07-07;NA;0;0;1;2020-05-04;NA;NA
+"50";"Wisconsin";"WI";55;2020-08-01;NA;1;0;0;2020-08-01;NA;NA
+"51";"Wyoming";"WY";56;NA;NA;0;0;0;2020-05-01;2021-03-16;NA
