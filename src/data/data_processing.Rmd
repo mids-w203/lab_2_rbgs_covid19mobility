@@ -7,6 +7,7 @@ author: Gerrit Lensink
 library(dplyr)
 library(tidyverse)
 ```
+
 ```{r load functions from other cleaning docs}
 count_blank_na <- function(in_df, column_name = in_df[1]) {
   # Purpose: quick count of blanks or NA values in a column
@@ -21,7 +22,6 @@ count_blank_na <- function(in_df, column_name = in_df[1]) {
 }
 
 ```
-
 
 First, load all of the data from our cleaned CSV files
 ```{r load csvs to df}
@@ -52,10 +52,13 @@ names(mobility)
                         cusp_closure$state, 
                         cusp_home$state, 
                         cusp_masks$state)
-  
+
+  # note masks has one less observation
+  setdiff(cusp_closure$state, cusp_masks$state)
+    
   # Check intersect
   length(Reduce(intersect, state_intersect))
-  
+
   # Check difference length
   length(Reduce(setdiff, state_intersect))
   
@@ -77,6 +80,27 @@ names(mobility)
   min(mobility$date)
   max(mobility$date)
 ```
+
+Join the cusp datasets together to create one primary df
+```{r}
+cusp <- cusp_home %>%
+  left_join(cusp_closure, by = "state") %>%
+  left_join(cusp_masks, by = "state") %>%
+  select(stay_at_home_shelter_in_place, 
+         end_stay_at_home_shelter_in_place, 
+         public_face_mask_mandate, 
+         end_face_mask_mandate,
+         ) %>%
+  rename(
+    start_quarantine = stay_at_home_shelter_in_place, 
+    end_quarantine   = end_stay_at_home_shelter_in_place, 
+    start_mask       = public_face_mask_mandate, 
+    end_mask         = end_face_mask_mandate
+         )
+
+names(cusp)
+```
+
 
 Now, Join the two time series datasets together. We know from previous cleaning, that covid date has different start date for each state - depending on the date of their first reported covid case. For the mobility dataset, each state had the exact same number of aggregate observations between 2/15/2020 and 3/14/2021. For this reason, we will use these dates as the set of base dates, and augment with any information available from covid. 
 
