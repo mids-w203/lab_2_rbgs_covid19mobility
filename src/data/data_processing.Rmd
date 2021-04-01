@@ -1,0 +1,165 @@
+---
+title: "data_processing"
+output: pdf_document
+author: Gerrit Lensink
+---
+```{r load packages}
+setwd(".")
+library(dplyr)
+library(tidyverse)
+```
+
+```{r load functions from other cleaning docs}
+count_blank_na <- function(in_df, column_name = in_df[1]) {
+  # Purpose: quick count of blanks or NA values in a column
+  # Input: df, column_name to be checked 
+  # - defaults to first column if none provided
+  # Output: number of blanks in column
+  
+  in_df %>%
+  filter({{ column_name }} == "" | 
+           is.na({{ column_name }})) %>%
+  nrow() %>% cat("\n")
+}
+
+```
+
+First, load all of the data from our cleaned CSV files
+```{r load csvs to df}
+# Load all cleaned cusp CSVs to consolidate
+cusp_closure <- read.csv2("../../data/interim/CUSP/closures_and_reopening.csv")
+cusp_masks <- read.csv2("../../data/interim/CUSP/face_masks.csv")
+cusp_home <- read.csv2("../../data/interim/CUSP/stay_at_home.csv")
+
+# Load mobility data
+mobility <- read.csv("../../data/interim/mobility.csv")
+
+# Load COVID cases data
+covid <- read.csv("../../data/interim/nyt_covid.csv")
+```
+
+Make sure the five datasets all have the same formats/values for joined columns
+1. state
+2. date (covid and mobility only)
+
+```{r check joining fields}
+# STATE
+  state_intersect <- list(
+                        covid$state, 
+                        mobility$state, 
+                        cusp_closure$state, 
+                        cusp_home$state, 
+                        cusp_masks$state)
+    
+  # Check intersect
+  length(Reduce(intersect, state_intersect))
+
+  # Check difference length
+  length(Reduce(setdiff, state_intersect))
+  
+  # Note all states outside set are only contained in 1 df, and not part of 
+  # contiguous US
+  Reduce(setdiff, state_intersect)
+
+# DATE
+  # make sure there are no NAs
+  covid %>%
+    count_blank_na()
+  
+  mobility %>%
+    count_blank_na()
+  
+  # Check min and max dates
+  min(covid$date)
+  max(covid$date)
+  min(mobility$date)
+  max(mobility$date)
+```
+
+Join the cusp datasets together to create one primary df
+```{r}
+cusp <- cusp_home %>%
+  left_join(cusp_closure, by = "state") %>%
+  left_join(cusp_masks, by = "state") %>%
+  select(state, 
+         stay_at_home_shelter_in_place, 
+         end_stay_at_home_shelter_in_place, 
+         public_face_mask_mandate, 
+         end_face_mask_mandate,
+         ) %>%
+  rename(
+    start_quarantine = stay_at_home_shelter_in_place, 
+    end_quarantine   = end_stay_at_home_shelter_in_place, 
+    start_mask       = public_face_mask_mandate, 
+    end_mask         = end_face_mask_mandate
+         )
+
+names(cusp)
+```
+
+
+Now, Join the two time series datasets together. We know from previous cleaning, that covid date has different start date for each state - depending on the date of their first reported covid case. For the mobility dataset, each state had the exact same number of aggregate observations between 2/15/2020 and 3/14/2021. For this reason, we will use these dates as the set of base dates, and augment with any information available from covid. 
+
+Additionally, the covid dataset (once first date occurs) has no "holes" in data, as discovered in covid cleaning markdown. There will be some NAs before the first date, but we do not expect NAs after the first reported case. 
+
+Finally, the mobility file has all of the relevant states of interest, so keying off mobility states rather than covid states will leave us with the correct state list. 
+```{r join covid and mobility}
+
+# left join is appropriate here, since mobility has all of our dates, states, of interest
+time_series <- mobility %>% 
+  left_join(covid, by = c("state", "date")) %>%
+  select(state, date, avg_retail_rec_change, new_cases, avg_parks_change)
+
+# Spot check: 
+# knowing first cases in alabama were 3/14, do a quick check before and after
+time_series %>%
+  filter(state == "Alabama", date == c("2020-03-14", "2020-03-13"))
+```
+
+Join some of the columns we find interesting in cusp to time_series
+```{r join time series to cusp}
+time_series_with_cusp <- time_series %>%
+  inner_join(cusp, by = "state")
+```
+
+
+Now, we want to add a few indicator variables to our dataset
+1. `in_quarantine`: whether or not the state has a mandated stay_at_home order during at current date
+2. `quarantine_length`: the duration (at current) for stay at home order
+3. 
+
+```{r code up control variables}
+# DF with all columns to aide in further validation on start/end binary
+validation_data <- time_series_with_cusp %>%
+  group_by(state) %>%
+  mutate(in_quarantine = case_when(
+            as.Date(date) >=  as.Date(start_quarantine) & 
+            (as.Date(date) <  as.Date(end_quarantine) | is.na(end_quarantine)) ~ 1,
+                                                                     TRUE    ~ 0),
+         mask_order = case_when(
+            as.Date(date) >=  as.Date(start_mask) & 
+            (as.Date(date) <  as.Date(end_mask) | is.na(end_mask))  ~ 1,
+                                                            TRUE    ~ 0),
+         quarantine_length = case_when(
+            in_quarantine > 0 ~ cumsum(in_quarantine),
+            TRUE              ~ 0)
+    ) %>% 
+  select(state, date, 
+         start_mask, end_mask, mask_order, 
+         start_quarantine, end_quarantine, quarantine_length, in_quarantine, 
+         avg_retail_rec_change, avg_parks_change,
+         new_cases)
+
+# Study data, keeping only what we need, plus maybe a few extras
+study_data <- validation_data %>%
+  select(state, date, 
+         mask_order, in_quarantine, quarantine_length, 
+         avg_retail_rec_change, avg_parks_change,
+         new_cases)
+```
+
+```{r}
+write.csv(validation_data, "../../data/processed/validation_data.csv", row.names = FALSE)
+write.csv(study_data, "../../data/processed/study_data.csv", row.names = FALSE)
+```
+
