@@ -24,290 +24,192 @@ knitr::opts_chunk$set(dpi = 300)
 ```
 
 ```{r load data}
-study_data = read_csv('study_data.csv')
-head(study_data)
+covid_mobility_data = read_csv('study_data.csv')
+head(covid_mobility_data)
 ```
 
 
 ```{r}
-
-votes_hist <- results_house %>%
+#In Quarantine histogram
+covid_mobility_data %>%
   ggplot() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  aes(x = general_percent) +
+  aes(x = in_quarantine) +
   geom_histogram(bins=30) +
-  labs(title = 'F1: Distribution of Votes') +
-  xlab('General Percentage of Votes') +
+  labs(title = 'Distribution of In Quarantine') +
+  xlab('In Quarantine') +
   ylab('Count') 
 
-
-# Applying log transformation because spending distribution is heavily 
-# clustered near zero and I want to properly be able to distribute the data
-# in order to properly visualize spending data
-
-spending_hist <- campaigns %>%
+# Mobility Histograms
+retail_rec_hist <- covid_mobility_data %>%
   ggplot() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  aes(x = ttl_disb) +
+  aes(x = avg_retail_rec_change) +
   geom_histogram(bins=30) +
-  labs(title = 'F2.1: Distribution of Disbursements') +
-  xlab('Disbursement Amount ($)') +
+  labs(title = 'Distribution of Retail/Rec Mobility Change') +
+  xlab('Percent Change in Retail/Rec Mobility') +
   ylab('Count') 
 
-
-log_spending_hist <- campaigns %>%
+park_hist <- covid_mobility_data %>%
   ggplot() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  aes(x = log(ttl_disb)) +
-  geom_histogram(bins=50) +
-  labs(title = 'F2.2: Log Distribution of Disbursements') +
-  xlab('Log Disbursement Amount ($)') +
+  aes(x = avg_parks_change) +
+  geom_histogram(bins=30) +
+  labs(title = 'Distribution of Park Mobility Change') +
+  xlab('Percent Change in Park Mobility') +
   ylab('Count') 
 
-#Plot above histograms
-votes_hist/(spending_hist+log_spending_hist)
+#Plot above mobility histograms
+retail_rec_hist/park_hist
 
-```
-
-
-```{r}
-house_campaigns <- dplyr::inner_join(results_house,campaigns,by='cand_id')
-head(house_campaigns)
-```
-
-
-### 3. (3 points) Produce a scatter plot of `general_votes` on the y-axis and `ttl_disb` on the x-axis. What do you observe about the shape of the joint distribution? 
-
-```{r}
-scatter_plot <- house_campaigns %>%
+# Quarantine Length Histograms
+quarantine_length_hist <- covid_mobility_data %>%
   ggplot() +
-  aes(x = ttl_disb, y = general_votes) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = quarantine_length) +
+  geom_histogram(bins=30) +
+  xlim(-10,100) +
+  labs(title = 'Distribution of Quarantine Length') +
+  xlab('Quarantine Length (Number of Days)') +
+  ylab('Count')
+
+log_quarantine_length_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = log(quarantine_length)) +
+  geom_histogram(bins=30) +
+  labs(title = 'Log Distribution of Quarantine Length') +
+  xlab('Log(Quarantine Length)') +
+  ylab('Count')
+
+# Plot quarantine length histograms
+quarantine_length_hist/log_quarantine_length_hist
+
+
+# Mask Order Histogram
+mask_order_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = mask_order) +
+  geom_histogram(bins=30) +
+  labs(title = 'Distribution of Mask Order') +
+  xlab('Mask Order') +
+  ylab('Count') 
+
+
+#Plot above mask order histogram
+mask_order_hist
+
+# New cases Histogram
+new_cases_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = new_cases) +
+  geom_histogram(bins=30) +
+  xlim(-100,2000) +
+  labs(title = 'Distribution of New COVID-19 Cases') +
+  xlab('New COVID-19 Cases') +
+  ylab('Count') 
+
+log_new_cases_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = log(new_cases)) +
+  geom_histogram(bins=30) +
+  labs(title = 'Log Distribution of New COVID-19 Cases') +
+  xlab('Log(New COVID-19 Cases)') +
+  ylab('Count') 
+
+
+
+#Plot above mobility histograms
+new_cases_hist/log_new_cases_hist
+
+
+```
+
+
+```{r}
+scatter_plot_one <- covid_mobility_data %>%
+  ggplot() +
+  aes(x = quarantine_length, y = avg_retail_rec_change) +
   geom_point() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  ggtitle("Total Disbursed Amount vs Total Votes") +
-  xlab("Campaign Total Disbursed Amount ($)") +
-  ylab("General Campaign Total Votes") +
+  #ggtitle("Total Disbursed Amount vs Total Votes") +
+  #xlab("Campaign Total Disbursed Amount ($)") +
+  #ylab("General Campaign Total Votes") +
   scale_x_continuous(labels = scales::comma) +
   scale_y_continuous(labels = scales::comma) 
 
-scatter_plot
-```
-I notice a lot of points clustered primarily between 0 and \$2.5 million for 
-disbursed amount and also from 0 to 300,000 total votes. I also notice a 
-logarithmic line that could represent the general trend of the data. There's an 
-unusual number of points that have a lower number of total votes but the range 
-is between 0 and \$5 million so this could represent a certain party of the 
-candidates. We also notice a handful of outliers in the high total vote amount 
-and high total disbursed amount, which could potentially be addressed by a 
-log transformation in future plots.
-
-### 4. (3 points) Create a new variable to indicate whether each individual is a "Democrat", "Republican" or "Other Party". 
-  - Here's an example of how you might use `mutate` and `case_when` together to create a variable. 
-
-```
-starwars %>%
-  select(name:mass, gender, species) %>%
-  mutate(
-  type = case_when(
-    height > 200 | mass > 200 ~ "large",
-    species == "Droid"        ~ "robot",
-    TRUE                      ~ "other"
-    )
-  )
-```
-
-Once you've produced the new variable, plot your scatter plot again, but this time adding an argument into the `aes()` function that colors the points by party membership.  What do you observe about the distribution of all three variables?
-
-```{r}
-
-house_campaigns_v2 <- house_campaigns %>%
-  mutate(
-    cand_party = case_when(
-      party == "DEM" ~ "Democrat",
-      party == "REP" ~ "Republican",
-      TRUE ~ "Other Party"
-    )
-  ) 
-
-#Level-Level Plot
-plot_one <- house_campaigns_v2 %>%
+scatter_plot_two <- covid_mobility_data %>%
   ggplot() +
-  aes(x = ttl_disb, y = general_votes, color=cand_party) +
+  aes(x = log(quarantine_length), y = avg_retail_rec_change) +
   geom_point() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  ggtitle("Figure 3: Total Disbursed Amount vs Total Votes") +
-  xlab("Campaign Total Disbursed Amount ($)") +
-  ylab("General Total Votes") +
-  labs(color='Candidate Party') +
+  #ggtitle("Total Disbursed Amount vs Total Votes") +
+  #xlab("Campaign Total Disbursed Amount ($)") +
+  #ylab("General Campaign Total Votes") +
   scale_x_continuous(labels = scales::comma) +
-  scale_y_continuous(labels = scales::comma)
+  scale_y_continuous(labels = scales::comma) 
 
-#Log-Level Plot
-plot_two <- house_campaigns_v2 %>%
+scatter_plot_one/scatter_plot_two
+
+scatter_plot_three <- covid_mobility_data %>%
   ggplot() +
-  aes(x = log(ttl_disb), y = general_votes, color=cand_party) +
+  aes(x = in_quarantine, y = avg_retail_rec_change) +
   geom_point() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  ggtitle("Figure 4: Log(Total Disbursed Amount) vs Total Votes") +
-  xlab("Campaign Total Disbursed Amount ($)") +
-  ylab("General Total Votes") +
-  labs(color='Candidate Party') +
+  #ggtitle("Total Disbursed Amount vs Total Votes") +
+  #xlab("Campaign Total Disbursed Amount ($)") +
+  #ylab("General Campaign Total Votes") +
   scale_x_continuous(labels = scales::comma) +
-  scale_y_continuous(labels = scales::comma)
+  scale_y_continuous(labels = scales::comma) 
 
-#Log-Log Plot
-plot_three <- house_campaigns_v2 %>%
-  ggplot() +
-  aes(x = log(ttl_disb), y = log(general_votes), color=cand_party) +
-  geom_point() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ggtitle("Figure 5: Log(Total Disbursed Amount) vs Log(Total Votes)") +
-  xlab("Campaign Total Disbursed Amount ($)") +
-  ylab("General Total Votes") +
-  labs(color='Candidate Party') +
-  scale_x_continuous(labels = scales::comma) +
-  scale_y_continuous(labels = scales::comma)
-
-#Plot above scatter plots
-grid.arrange(plot_one, plot_two, plot_three, nrow = 3)
-
-
+scatter_plot_three
 ```
-Immediately we notice in Figure 3 that the other party candidates had a lower number of votes overall, compared to both the Democratic and Republican parties. Also, it appears that the total disbursed amounts were mostly between 0 dollars and 5 million dollars, with a handful of outliers outside of this range. Because these outliers might skew our linear model and coefficients, I applied a log transform to the total disbursed dollars, as seen in Figure 4, to see more of the variability in the distribution of the total disbursed dollars. For the general votes, the other party had lower total votes (as expected) but we barely see any variability in the distribution of votes for this party. Even in the initial view of votes for the Democrat and Republican parties, the points appear bunched together and it's tough to differentiate any trends between them. For this reason, I am also applying a log transform to the total votes column. Once the log transform has been applied in Figure 5, we can see more of the variability in both distributions of data among candidates of the other party but we also still notice how similar the spread of total votes is among both the Democrat and Republican candidates. Because of this similarity, I will create linear models where the total votes isn't log-transformed and where it is log-transformed to observe differences in the variances caused by the total votes, if any.
 
-\newpage
+
 
 # Produce a Descriptive Model 
 
-### 5. (5 Points) Given your observations, produce a linear model that you think does a good job at describing the relationship between candidate spending and votes they receive. You should decide what transformation to apply to spending (if any), what transformation to apply to votes (if any) and also how to include the party affiliation.
+### Given your observations, produce a linear model that you think does a good job at describing the relationship. You should decide what transformation to apply to each variable and also how to include state
 
 ```{r fit linear model, echo=TRUE, warning=FALSE, message=FALSE}
-# Eliminating Nan/0 values from ttl_disb and general_votes
-house_campaigns_v3 <- house_campaigns_v2 %>%
-                        filter(general_votes > 0 &
-                                 ttl_disb > 0 )
-
-house_campaigns_v4 <- house_campaigns_v3 %>% 
-                        filter(!is.na(ttl_disb) & 
-                                 !is.na(general_votes))
-
-
-# Verify positive, numeric values for the two variables
-cat("Summary of general_votes column\n")
-summary(house_campaigns_v4$general_votes)
-cat("Summary of ttl_disb\n")
-summary(house_campaigns_v4$ttl_disb)
 
 
 
-# Create new dummy variables to represent Democrats and Republicans
-house_campaigns_v5 <- house_campaigns_v4 %>%
-  mutate(
-    Is_Democrat = case_when(
-      cand_party == "Democrat" ~ 1,
-      cand_party == "Republican" ~ 0,
-      cand_party == "Other Party" ~ 0
-    ),
-    Is_Republican = case_when(
-      cand_party == "Democrat" ~ 0,
-      cand_party == "Republican" ~ 1,
-      cand_party == "Other Party" ~ 0
-    )
-  )
+# Verify positive, numeric values for variables
 
 
-# Create LM models - one with general_votes as is and one log-transformed
-votes_disb_model_v1 <- lm(general_votes~log(ttl_disb)+Is_Democrat+
-                         Is_Republican,na.action=na.exclude, 
-                          data=house_campaigns_v5)
-votes_disb_model_v2 <- lm(log(general_votes)~log(ttl_disb)+Is_Democrat+
-                         Is_Republican,na.action=na.exclude, 
-                          data=house_campaigns_v5)
 
+# Create LM models 
+
+model_1 <- lm(avg_retail_rec_change ~ in_quarantine, data=covid_mobility_data)
+model_2 <- lm(avg_retail_rec_change ~ in_quarantine+quarantine_length+mask_order+new_cases, data=covid_mobility_data)
+model_3 <- lm(avg_retail_rec_change ~ in_quarantine+quarantine_length+mask_order+new_cases+avg_parks_change, data=covid_mobility_data)
+summary(model_1)
 
 
 ```
 
 
 
-As mentioned above, the heavy clustering of the total disbursement amount is 
-hard to visualize in terms of variability; I therefore decided to log 
-transform the 'ttl_disb' variable. I also constructed another model where 
-the total votes was log transformed to observe any variability in the votes. 
-Before log-transforming this variables, however, I ensured that both ttl_disb 
-and general_votes had no rows with NA values and 0 values, as this would impede 
-in performing log transformations. I chose this approach in order to perform 
-the linear model analysis and because we already have a fairly large sample size
-of candidates. I do recognize, however, that this might skew the model 
-coefficients and our interpretation of the model.
-In addition, I created 2 new indicator variables to represent 
-whether the candidate is a Democrat or Republican. If the candidate is in 
-neither party, the indicator variables will end up with a value of 0. This will 
-allow us to have our baseline as the other party in order to allow the focus 
-to be on the Democratic and Republican candidates. Please note that there were 
-10's of rows where the candidate ID was duplicated, but I kept them separated 
-because  the candidate either ran for different districts or they ran for 
-different parties. Aggregating this information might've resulted in a loss of 
-important candidate information. See discussion on the two models in the below 
-part.
 
-
-### 6. (3 points) Interpret the model coefficients you estimate.
+### Interpret the model coefficients you estimate.
 ```{r, echo=TRUE, warning=FALSE, message=FALSE}
 
 # View details of both models
 stargazer( 
-  votes_disb_model_v1, 
-  votes_disb_model_v2,
+  model_1,
+  model_2,
+  model_3,
+  se =list(sqrt(diag(vcovHC(model_1))),sqrt(diag(vcovHC(model_2)))),
   type = 'text'
 )
 
 ```
 
 
-* IID: There is some concern for independence here, as races are not all voted/tallied at the same time. otucomes of house races in different districts/states may affect the outcome of races in other districts or states. Voters may vote differently based on known outcomes of other races. Since this seems to be the population data rather than a sample, there is little concern about identical distributions in samples, because we have all of the data (barring other exclusions discussed in other sections). The concern for independence is small enough that it is fair to assume the data is “sampled” IID.
-* No perfect collinearity: based on the vcov matrices above, as well as the correlation matrix, none of the variables are perfectly collinear. so this assumption is satisfied. Also, the log transformation allows for normality in our distribution and no heavy tails.
 
-For both models above, we can see that each of the coefficients (total 
-disbursement amount, Democrat, Republican) is highly significant, based on 
-their p values, in influencing the number of votes a candidate receives. The 
-major difference in coefficients is mainly due to the fact that the general 
-votes isn't log transformed while the total disbursement amount is in the first 
-model. In the second model, however, since both variables are log transformed, 
-the comparison between variables is a little more straightforward scale-wise and 
-we can show a direct relationship between total disbursement amount and total 
-votes as a percent change. Viewing the relationship through percent changes is 
-useful in situations where you are trying to understand areas where number of 
-votes may be small or large, depending on whether you are in a large 
-metropolitan area or a rural county. Finally, If we look below the coefficients,
-we can see a greater $R^2$ value for the second model (0.605), indicating more 
-variability in the data. Because of this better $R^2$ value and ease of 
-interpretation of coefficients, I will focus my analysis of coefficients 
-on the second model, which I ultimately chose to be the model that represents 
-the relationship between total disbursement amount and total votes. 
 
-**Model 2**
-$$log(general votes) = 7.877 + 0.12log(ttl disb) + 2.45Democrat + 2.46Republican$$
 
-For the upcoming analysis of the following independent variables, please note 
-that we hold all the other variables constant as we analyze one variable. 
-For a one-unit increase in total disbursement amount, this results in a 0.12% 
-increase in total votes for a candidate. If a candidate is Democrat, we can 
-assume an increase in votes by a factor of $e^{2.45}$, or $\approx11.59$, 
-compared to the 'Other Party'. On the other hand, if the candidate is 
-Republican, we can assume an increase in votes by $e^{2.46}$or $\approx11.70$ 
-compared to the 'Other Party'. Looking at our intercept of 7.877, this indicates 
-that if the candidate is in another party and doesn't receive any disbursements, 
-that the candidate would still receive $e^{7.877}$ or $\approx2636$ votes. 
-Overall, it appears that total disbursement amount does have a significant 
-relationship with the total votes a candidate receives, provided that the 
-candidate is either a Democrat or Republican (with a very slight advantage 
-for Republicans). If the candidate is from another party, then the effect of 
-the total disbursement amount on the number of votes the candidate receives is 
-not as much.
-
---------------------------------------------------------------------------------
-
-- Tasks to keep in mind as you're writing about your model: 
-    - At the time that you're writing and interpreting your regression coefficients you'll be *deep* in the analysis. Nobody will know more about the data than you do, at that point. *So, although it will feel tedious, be descriptive and thorough in describing your observations.* 
-    - It can be hard to strike the balance between: on the one hand,  writing enough of the technical underpinnings to know that your model meets the assumptions that it must; and, on the other hand, writing little enough about the model assumptions that the implications of the model can still be clear. We're starting this practice now, so that by the end of Lab 2 you will have had several chances to strike this balance.
