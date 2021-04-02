@@ -146,7 +146,7 @@ ny_state_covid_new
 ```{r join with state_char}
 nyt_covid_state <- nyt_covid_new %>%
   inner_join(state_char, by = "state")
-nyt_covid_state %>% 
+nyt_covid_state_final <- nyt_covid_state %>% 
     group_by(
     state
     ) %>%
@@ -164,12 +164,12 @@ nyt_covid_state %>%
     ,new_cases_norm
     ,new_deaths_norm
   )
-nyt_covid_state
+nyt_covid_state_final
 ```
 
 
 ```{r write transformed data to csv}
-write.csv(nyt_covid_state,
+write.csv(nyt_covid_state_final,
            file = paste0("~/W203_RDataHub/lab_2-rbgs/data/interim/",
                           "nyt_covid.csv"))
 ```
