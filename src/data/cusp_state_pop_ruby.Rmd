@@ -1,0 +1,37 @@
+---
+title: "CUSP - Extract State Population and Population Density"
+author: 'Ruby Han'
+date: "04/02/2021"
+output: pdf_document
+---
+
+```{r load packages, message=FALSE}
+# read excel format
+library(readxl)
+
+library(janitor)
+```
+
+```{r load data, message=FALSE, warning=FALSE}
+state_characteristics <- read_excel("~/W203_RDataHub/lab_2-rbgs/data/raw/CUSP.xlsx", sheet = "State Characteristics")
+state_char <- state_characteristics %>% 
+  clean_names() %>% 
+  drop_na() %>% 
+  select(
+    state
+    ,population_density_per_square_mile
+    ,population_2018
+  )
+  
+state_char
+```
+
+```{r write transformed data to csv}
+write.csv(state_char,
+           file = paste0("~/W203_RDataHub/lab_2-rbgs/data/interim/",
+                          "state_char.csv"))
+```
+
+
+
+

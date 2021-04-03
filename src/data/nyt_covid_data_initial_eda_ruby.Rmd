@@ -29,6 +29,7 @@ library(data.table)
 ```{r load data, message=FALSE, warning=FALSE}
 nyt_covid_data <- fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
 # jhu_covid_data <- fread("https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/JHU_USCountymap/df_Counties2020.csv")
+state_char <- read.csv("~/W203_RDataHub/lab_2-rbgs/data/interim/state_char.csv")
 head(nyt_covid_data)
 ```
 
@@ -108,7 +109,6 @@ nyt_covid_new <- nyt_covid %>%
     new_cases = cases - lag(cases, default = first(cases), order_by = date)
     ,new_deaths = deaths - lag(deaths, default = first(deaths), order_by = date)
   )
-summary(nyt_covid_new)
 ```
 
 ```{r EDA on negative values}
@@ -117,6 +117,9 @@ nyt_covid_negative <- nyt_covid_new %>%
     new_cases < 0 | new_deaths < 0
   )
 nyt_covid_negative # negative values are assumed to be corrective adjustments on previous erroneous data entry
+```
+```{r}
+summary(nyt_covid_new)
 ```
 
 
@@ -140,8 +143,33 @@ ny_state_covid_new
 ```
 
 
+```{r join with state_char}
+nyt_covid_state <- nyt_covid_new %>%
+  inner_join(state_char, by = "state")
+nyt_covid_state_final <- nyt_covid_state %>% 
+    group_by(
+    state
+    ) %>%
+  mutate(
+    new_cases_norm = new_cases/population_2018*100000
+    ,new_deaths_norm = new_deaths/population_2018*100000
+  ) %>% 
+  select(
+    date
+    ,state
+    # ,cases
+    # ,deaths
+    # ,new_cases
+    # ,new_deaths
+    ,new_cases_norm
+    ,new_deaths_norm
+  )
+nyt_covid_state_final
+```
+
+
 ```{r write transformed data to csv}
-write.csv(nyt_covid_new,
+write.csv(nyt_covid_state_final,
            file = paste0("~/W203_RDataHub/lab_2-rbgs/data/interim/",
                           "nyt_covid.csv"))
 ```
