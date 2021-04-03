@@ -30,6 +30,7 @@ First, load all of the data from our cleaned CSV files
 cusp_closure <- read.csv2("../../data/interim/CUSP/closures_and_reopening.csv")
 cusp_masks <- read.csv2("../../data/interim/CUSP/face_masks.csv")
 cusp_home <- read.csv2("../../data/interim/CUSP/stay_at_home.csv")
+cusp_state_char <- read.csv2("../../data/interim/CUSP/state_characteristics.csv")
 
 # Load mobility data
 mobility <- read.csv("../../data/interim/mobility.csv")
@@ -49,7 +50,8 @@ Make sure the five datasets all have the same formats/values for joined columns
                         mobility$state, 
                         cusp_closure$state, 
                         cusp_home$state, 
-                        cusp_masks$state)
+                        cusp_masks$state,
+                        cusp_state_char$state)
     
   # Check intersect
   length(Reduce(intersect, state_intersect))
@@ -81,17 +83,22 @@ Join the cusp datasets together to create one primary df
 cusp <- cusp_home %>%
   left_join(cusp_closure, by = "state") %>%
   left_join(cusp_masks, by = "state") %>%
+  left_join(cusp_state_char, by = "state") %>%
   select(state, 
          stay_at_home_shelter_in_place, 
          end_stay_at_home_shelter_in_place, 
          public_face_mask_mandate, 
          end_face_mask_mandate,
+         population_density_per_square_mile, 
+         population_2018
          ) %>%
   rename(
-    start_quarantine = stay_at_home_shelter_in_place, 
-    end_quarantine   = end_stay_at_home_shelter_in_place, 
-    start_mask       = public_face_mask_mandate, 
-    end_mask         = end_face_mask_mandate
+    start_quarantine   = stay_at_home_shelter_in_place, 
+    end_quarantine     = end_stay_at_home_shelter_in_place, 
+    start_mask         = public_face_mask_mandate, 
+    end_mask           = end_face_mask_mandate, 
+    population_density = population_density_per_square_mile, 
+    population         = population_2018
          )
 
 names(cusp)
@@ -114,6 +121,13 @@ time_series <- mobility %>%
 # knowing first cases in alabama were 3/14, do a quick check before and after
 time_series %>%
   filter(state == "Alabama", date == c("2020-03-14", "2020-03-13"))
+
+# Recognize that in days where we don't yet have cases, these get joined as blanks
+count_blank_na(time_series, new_cases)
+
+# These should be represented as 0, not NA, so fixing this
+time_series <- time_series %>%
+  mutate(new_cases = replace_na(new_cases,0))
 ```
 
 Join some of the columns we find interesting in cusp to time_series
@@ -126,7 +140,7 @@ time_series_with_cusp <- time_series %>%
 Now, we want to add a few indicator variables to our dataset
 1. `in_quarantine`: whether or not the state has a mandated stay_at_home order during at current date
 2. `quarantine_length`: the duration (at current) for stay at home order
-3. 
+3. `treatment_group`: groups which receive a movement-restrictive stay-at-home-order
 
 ```{r code up control variables}
 # DF with all columns to aide in further validation on start/end binary
@@ -142,20 +156,28 @@ validation_data <- time_series_with_cusp %>%
                                                             TRUE    ~ 0),
          quarantine_length = case_when(
             in_quarantine > 0 ~ cumsum(in_quarantine),
-            TRUE              ~ 0)
+            TRUE              ~ 0),
+         treatment_group = case_when(
+           state %in% c('Arkansas', 'Connecticut', 'Iowa', 'Kentucky', 'Nebraska',
+                        'North Dakota', 'Oklahoma', 'South Dakota', 'Texas', 
+                        'Utah', 'Wyoming') ~ 0, 
+           TRUE                            ~ 1),
+         new_cases_per_100k = new_cases/population*100000
     ) %>% 
   select(state, date, 
-         start_mask, end_mask, mask_order, 
+         treatment_group,
+         start_mask, end_mask, mask_order, population, population_density,
          start_quarantine, end_quarantine, quarantine_length, in_quarantine, 
-         avg_retail_rec_change, avg_parks_change,
-         new_cases)
+         avg_retail_rec_change, avg_parks_change, 
+         new_cases, new_cases_per_100k)
 
 # Study data, keeping only what we need, plus maybe a few extras
 study_data <- validation_data %>%
   select(state, date, 
-         mask_order, in_quarantine, quarantine_length, 
          avg_retail_rec_change, avg_parks_change,
-         new_cases)
+         treatment_group, in_quarantine,
+         quarantine_length, mask_order, population, population_density,
+         new_cases, new_cases_per_100k)
 ```
 
 ```{r}
