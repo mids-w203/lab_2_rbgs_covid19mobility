@@ -138,15 +138,15 @@ time_series_with_cusp <- time_series %>%
 
 
 Now, we want to add a few indicator variables to our dataset
-1. `in_quarantine`: whether or not the state has a mandated stay_at_home order during at current date
+1. `at_home_order`: whether or not the state has a mandated stay_at_home order during at current date
 2. `quarantine_length`: the duration (at current) for stay at home order
-3. `treatment_group`: groups which receive a movement-restrictive stay-at-home-order
+3. `group`: groups which receive a movement-restrictive stay-at-home-order
 
 ```{r code up control variables}
 # DF with all columns to aide in further validation on start/end binary
 validation_data <- time_series_with_cusp %>%
   group_by(state) %>%
-  mutate(in_quarantine = case_when(
+  mutate(at_home_order = case_when(
             as.Date(date) >=  as.Date(start_quarantine) & 
             (as.Date(date) <  as.Date(end_quarantine) | is.na(end_quarantine)) ~ 1,
                                                                      TRUE    ~ 0),
@@ -155,9 +155,9 @@ validation_data <- time_series_with_cusp %>%
             (as.Date(date) <  as.Date(end_mask) | is.na(end_mask))  ~ 1,
                                                             TRUE    ~ 0),
          quarantine_length = case_when(
-            in_quarantine > 0 ~ cumsum(in_quarantine),
+            at_home_order > 0 ~ cumsum(at_home_order),
             TRUE              ~ 0),
-         treatment_group = case_when(
+         group = case_when(
            state %in% c('Arkansas', 'Connecticut', 'Iowa', 'Kentucky', 'Nebraska',
                         'North Dakota', 'Oklahoma', 'South Dakota', 'Texas', 
                         'Utah', 'Wyoming') ~ 0, 
@@ -165,9 +165,9 @@ validation_data <- time_series_with_cusp %>%
          new_cases_per_100k = new_cases/population*100000
     ) %>% 
   select(state, date, 
-         treatment_group,
+         group,
          start_mask, end_mask, mask_order, population, population_density,
-         start_quarantine, end_quarantine, quarantine_length, in_quarantine, 
+         start_quarantine, end_quarantine, quarantine_length, at_home_order, 
          avg_retail_rec_change, avg_parks_change, 
          new_cases, new_cases_per_100k)
 
@@ -175,7 +175,7 @@ validation_data <- time_series_with_cusp %>%
 study_data <- validation_data %>%
   select(state, date, 
          avg_retail_rec_change, avg_parks_change,
-         treatment_group, in_quarantine,
+         group, at_home_order,
          quarantine_length, mask_order, population, population_density,
          new_cases, new_cases_per_100k)
 ```
