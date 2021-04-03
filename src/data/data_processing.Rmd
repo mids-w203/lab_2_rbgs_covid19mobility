@@ -182,6 +182,6 @@ study_data <- validation_data %>%
 
 ```{r}
 write.csv(validation_data, "../../data/processed/validation_data.csv", row.names = FALSE)
-write.csv(study_data, "../../data/processed/study_data.csv", row.names = FALSE)
+write.csv(study_data, "../../data/processed/processed_data.csv", row.names = FALSE)
 ```
 
