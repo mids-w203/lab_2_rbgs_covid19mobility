@@ -51,6 +51,17 @@ df_closures_and_reopening <- df_closures_and_reopening %>% mutate_at(vars(-1,-2,
 write.csv2(df_closures_and_reopening,'../../data/interim/CUSP/closures_and_reopening.csv')
 ```
 
+
+```{r}
+df <- read.csv(file = '../../data/raw/CUSP/state_characteristics.csv')
+df_state_characteristics <- df %>% clean_names() %>% filter(row_number() <= n()-1) %>%
+  select(state,state_abbreviation,state_fips_code,population_density_per_square_mile,population_2018)
+write.csv2(df_state_characteristics,'../../data/interim/CUSP/state_characteristics.csv')
+```
+
+
+
+
 ```{r}
 # Quarantine.mandate.ended This column has dates in the format 5/8/20 and 5/8/2020. This makes converting it to date a little tricky.
 # Will work on this if we need the dataset
