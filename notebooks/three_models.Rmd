@@ -1,0 +1,107 @@
+---
+title: "models_gl"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyverse)
+library(patchwork)
+library(stargazer)
+library(sandwich)
+setwd('.')
+
+minimal_theme_GL <- theme(
+      axis.text = element_text(color="#959292"),
+      axis.line = element_line(color = "#959292", size = .25), 
+      axis.title = element_text(color="#959292"),
+      axis.ticks = element_line(color = "#959292", size = .25),
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(), 
+      panel.background = element_blank(), 
+      plot.title = element_text(color="#959292", size = 11),
+      plot.subtitle = element_text(color="#959292"),
+      legend.text = element_text(color="#959292"), 
+      legend.title = element_blank(), 
+      # legend.justification=c(0,1), 
+      # legend.position=c(0,1), 
+      legend.direction = 'vertical')
+```
+
+```{r import data}
+data_filtered <- read.csv('../data/processed/processed_data.csv')
+```
+
+Ensure all of the data still looks as expected. 
+```{r}
+summary(data)
+```
+
+One Issue with NAs
+
+* 363 missing values for `avg_parks_change`
+
+  + Explanation: This occured in cases where a date had NO data for parks changes (at county level), but did have data for retail changes. 
+
+  + Action: will have to drop these observations - don't have way to replace data
+
+
+
+## Limited Model
+### Only the key variable
+```{r model one}
+model_one <- data %>%
+  lm(avg_retail_rec_change ~ at_home_order, .)
+```
+
+
+## Model Two
+### key explanatory variables and covariates that advance modeling goals
+```{r model two}
+model_two <- data %>%
+  lm(avg_retail_rec_change ~ 
+       at_home_order +                          # Primary variable of interest
+       quarantine_length + mask_order +         # Other covid policies/happenings that may confound
+       population_density + new_cases_per_100k, # State level effects that may confound
+     .) 
+```
+
+## Model Three
+### includes covariates from model two, plus a few more - erring on the side of inclusion
+```{r model three}
+model_three <- data %>%
+  lm(avg_retail_rec_change ~ 
+       at_home_order +                           # Primary variable of interest
+       quarantine_length + mask_order +          # Other covid policies/happenings that may confound
+       population_density + new_cases_per_100k + # State level effects that may confound
+       new_cases + population +                  # Likely collinear variables
+       avg_parks_change,                         # mobility related control we decided against
+     .)
+```
+
+## Assemble robust standard errors for tests of betas
+```{r robust se}
+# Variance-covariance matrix for each model
+beta_cov1 <- vcovHC.default(model_one, type = "HC3")
+beta_cov2 <- vcovHC.default(model_two, type = "HC3")
+beta_cov3 <- vcovHC.default(model_three, type = "HC3")
+
+# Extract robust se from vcov matrix diagonal
+robust_se1 <- sqrt(diag(beta_cov1))
+robust_se2 <- sqrt(diag(beta_cov2))
+robust_se3 <- sqrt(diag(beta_cov3))
+```
+
+
+## Summarize models
+```{r, results = 'asis', message = FALSE, warning = FALSE, header = FALSE}
+stargazer(
+  model_one, 
+  model_two,
+  model_three,
+  se = list(robust_se1, robust_se2, robust_se3), # replace classical w/ robust SE
+  # type = 'latex'
+  type = 'text'
+)
+```

@@ -1,0 +1,136 @@
+---
+title: "models_gl"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyverse)
+library(patchwork)
+library(stargazer)
+library(sandwich)
+setwd('.')
+
+minimal_theme_GL <- theme(
+      axis.text = element_text(color="#959292"),
+      axis.line = element_line(color = "#959292", size = .25), 
+      axis.title = element_text(color="#959292"),
+      axis.ticks = element_line(color = "#959292", size = .25),
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(), 
+      panel.background = element_blank(), 
+      plot.title = element_text(color="#959292", size = 11),
+      plot.subtitle = element_text(color="#959292"),
+      legend.text = element_text(color="#959292"), 
+      legend.title = element_blank(), 
+      # legend.justification=c(0,1), 
+      # legend.position=c(0,1), 
+      legend.direction = 'vertical')
+```
+
+```{r import data}
+data_filtered <- read.csv('../data/processed/processed_data.csv') %>%
+  mutate(
+    start = case_when(
+    as.Date(date) >= '2020-03-28'~ 1,
+    TRUE ~ 0)
+    ) %>%
+  filter(as.Date(date) <= '2020-06-15')
+
+data <- read.csv('../data/processed/processed_data.csv') %>%
+  mutate(
+    start = case_when(
+    as.Date(date) >= '2020-03-28'~ 1,
+    TRUE ~ 0)
+    )
+
+head(data)
+
+```
+
+Next, want to ensure all of the data still looks as expected. 
+```{r}
+summary(data)
+```
+
+Can see that there are two issues in terms of NAs. 
+
+* 363 missing values for `avg_parks_change`
+
+  + Explanation: This occured in cases where a date had NO data for parks changes (at county level), but did have data for retail changes. 
+
+  + Action: will have to drop these observations - don't have way to replace data
+
+<!-- * 910 Missing values for `new_cases` ---- FIXED this in processing file V2 -->
+
+<!--   + Explanation: These are days where no new COVID cases had yet been reported. There was technically no "before" to compare against, so they received NA values. in reality - we can interpret this as being 0 new cases in a day.  -->
+
+<!--   + Action: overwrite All NAs to 0 -->
+
+<!-- Can move on after taking corrective actions -->
+
+## Limited Model
+### Only the key variable
+```{r}
+
+model_one <- data %>%
+  lm(avg_retail_rec_change ~ start*group, .)
+summary(model_one)
+
+beta_cov1 <- vcovHC.default(model_one, type = "HC3")
+```
+
+
+## Model Two
+### key explanatory variables and covariates that advance modeling goals
+```{r}
+names(data)
+DID <- data_filtered %>%
+  lm(avg_retail_rec_change ~ start*group + quarantine_length + mask_order + population_density + new_cases_per_100k, .)
+
+DID2 <- data_filtered %>%
+  lm(avg_retail_rec_change ~ start*group + quarantine_length + mask_order + new_cases_per_100k, .)
+
+non_did <- data %>%
+  lm(avg_retail_rec_change ~ at_home_order + quarantine_length + mask_order + population_density + new_cases_per_100k, .)
+
+
+non_did2 <- data %>%
+  lm(avg_retail_rec_change ~ at_home_order + quarantine_length + mask_order + new_cases_per_100k, .)
+
+beta_cov0 <- vcovHC.default(DID, type = "HC3")
+beta_cov1 <- vcovHC.default(DID2, type = "HC3")
+beta_cov2 <- vcovHC.default(non_did, type = "HC3")
+beta_cov3 <- vcovHC.default(non_did2, type = "HC3")
+```
+
+## Model Three
+### includes covariates from model two, plus a few more - erring on the side of inclusion
+```{r}
+model_three <- data %>%
+  lm(avg_retail_rec_change ~ in_quarantine + quarantine_length + mask_order + new_cases +
+       avg_parks_change, #+
+     # state + date,
+    .) # Fixed Effects
+
+beta_cov3 <- vcovHC.default(model_three, type = "HC3")
+```
+
+## Summarize models
+```{r, results = 'asis', message = FALSE, warning = FALSE, header = FALSE}
+# Extract robust se from vcov matrix diagonal
+robust_se1 <- sqrt(diag(beta_cov1))
+robust_se2 <- sqrt(diag(beta_cov2))
+robust_se3 <- sqrt(diag(beta_cov3))
+
+stargazer(
+  DID2, 
+  DID,
+  non_did2,
+  non_did,
+  # se = list(robust_se0, robust_se1, robust_se2, robust_se3), # load errors from vcovHC
+  # type = 'latex'
+  type = 'text'
+)
+```
