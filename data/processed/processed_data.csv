@@ -1,4 +1,4 @@
-"state","date","avg_retail_rec_change","avg_parks_change","treatment_group","in_quarantine","quarantine_length","mask_order","population","population_density","new_cases","new_cases_per_100k"
+"state","date","avg_retail_rec_change","avg_parks_change","group","at_home_order","quarantine_length","mask_order","population","population_density","new_cases","new_cases_per_100k"
 "Alabama","2020-02-15",5.1551724137931,49.5714285714286,1,0,0,0,4887871,93.24,0,0
 "Alabama","2020-02-16",-1.45454545454545,-5.47619047619048,1,0,0,0,4887871,93.24,0,0
 "Alabama","2020-02-17",-1.16949152542373,12.9333333333333,1,0,0,0,4887871,93.24,0,0
