@@ -1,0 +1,71 @@
+---
+title: "CLM 4: HOMOSKEDASTICITY ERROR"
+output:
+  bookdown::pdf_document2: 
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyverse)
+library(patchwork)
+library(stargazer)
+library(sandwich)
+setwd('.')
+```
+
+```{r import data}
+data <- read.csv('../data/processed/processed_data.csv')
+```
+
+## Model Two
+```{r model two}
+model_two <- data %>%
+  lm(avg_retail_rec_change ~ 
+       at_home_order +                      
+       quarantine_length + mask_order + 
+       population_density + new_cases_per_100k, 
+     .) 
+```
+
+# CLM #4: Homoskedastic errors
+
+- To assess whether the distribution of the errors is homoskedastic, we will examine the residuals versus fitted plot again.  
+  - We are interested in whether there is a band of even thickness from left to right. 
+  - Based on the plot above (GERRIT'S PLOT), it does look like there might be some increase in the variance of the residuals at the upper side of the predicted values, but it is not severe.
+
+- Another idea is to examine the scale-location plot.  Homoskedasticity would show up on this plot as a flat smoothing curve.
+  - Based on Figure \@ref(fig:plot), there appears to be an uptick on the variances on the residual points with fitted variable, suggesting a slight problem with heteroskedasticity (non-constant variances in residual errors). This could be attributed to the `new_cases_per_100k` variable obtained from `nyt_covid` dataset as we assumed negative `new_cases` counts were corrective adjustments made to erroneous data entry. In addition, we also observed "data dumps" on a given day in certain states such as Missouri in which 290 new cases in the previous day and the 50,328 new cases in the next day.
+
+```{r plot, message = FALSE, echo = FALSE, fig.cap='Test for Homoskedasticitiy'}
+plot(model_two, which=3)
+```
+
+```{r}
+## Get standardized residuals
+r <- rstandard(model_two) 
+# order(abs(r), decreasing = TRUE)[1:20]
+summary(r)
+
+dropped_obs <- data %>% 
+  filter(
+    abs(r) < 0.5
+  )
+summary(dropped_obs) # 9461 data points remaining at the cost of homoskedasticity
+
+model_two_drop <- dropped_obs %>%
+  lm(avg_retail_rec_change ~ 
+       at_home_order +                      
+       quarantine_length + mask_order + 
+       population_density + new_cases_per_100k, 
+     .)
+
+plot(model_two_drop, which=3)
+
+```
+
+
+
+
+
