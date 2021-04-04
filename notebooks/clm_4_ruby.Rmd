@@ -62,8 +62,8 @@ model_two_drop <- dropped_obs %>%
      .)
 
 plot(model_two_drop, which=3)
-
 ```
+
 
 
 
