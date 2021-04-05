@@ -24,23 +24,13 @@ knitr::opts_chunk$set(dpi = 300)
 ```
 
 ```{r load data}
-covid_mobility_data = read_csv('study_data.csv')
+covid_mobility_data = read.csv('../data/processed/processed_data.csv')
 head(covid_mobility_data)
 ```
 
 
-```{r}
-#In Quarantine histogram
-covid_mobility_data %>%
-  ggplot() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  aes(x = in_quarantine) +
-  geom_histogram(bins=30) +
-  labs(title = 'Distribution of In Quarantine') +
-  xlab('In Quarantine') +
-  ylab('Count') 
+```{r mobility histograms}
 
-# Mobility Histograms
 retail_rec_hist <- covid_mobility_data %>%
   ggplot() +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -62,7 +52,65 @@ park_hist <- covid_mobility_data %>%
 #Plot above mobility histograms
 retail_rec_hist/park_hist
 
-# Quarantine Length Histograms
+
+```
+
+```{r at home and mask order histogram}
+#At Home Order histogram
+at_home_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = at_home_order) +
+  geom_histogram(bins=30) +
+  labs(title = 'Distribution of At Home Order') +
+  xlab('At Home Order') +
+  ylab('Count') 
+
+# Mask Order Histogram
+mask_order_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = mask_order) +
+  geom_histogram(bins=30) +
+  labs(title = 'Distribution of Mask Order') +
+  xlab('Mask Order') +
+  ylab('Count') 
+
+
+#Plot above histograms
+at_home_hist/mask_order_hist
+
+```
+
+```{r new cases histogram}
+
+new_cases_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = new_cases_per_100k) +
+  geom_histogram(bins=30) +
+  xlim(-100,2000) +
+  labs(title = 'Distribution of New COVID-19 Cases Per 100K') +
+  xlab('New COVID-19 Cases') +
+  ylab('Count') 
+
+log_new_cases_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = log(new_cases_per_100k)) +
+  geom_histogram(bins=30) +
+  labs(title = 'Log Distribution of New COVID-19 Cases Per 100K') +
+  xlab('Log(New COVID-19 Cases)') +
+  ylab('Count') 
+
+
+
+#Plot above new cases histograms
+new_cases_hist/log_new_cases_hist
+```
+
+```{r quarantine length histograms}
+
 quarantine_length_hist <- covid_mobility_data %>%
   ggplot() +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -84,110 +132,86 @@ log_quarantine_length_hist <- covid_mobility_data %>%
 
 # Plot quarantine length histograms
 quarantine_length_hist/log_quarantine_length_hist
-
-
-# Mask Order Histogram
-mask_order_hist <- covid_mobility_data %>%
-  ggplot() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  aes(x = mask_order) +
-  geom_histogram(bins=30) +
-  labs(title = 'Distribution of Mask Order') +
-  xlab('Mask Order') +
-  ylab('Count') 
-
-
-#Plot above mask order histogram
-mask_order_hist
-
-# New cases Histogram
-new_cases_hist <- covid_mobility_data %>%
-  ggplot() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  aes(x = new_cases) +
-  geom_histogram(bins=30) +
-  xlim(-100,2000) +
-  labs(title = 'Distribution of New COVID-19 Cases') +
-  xlab('New COVID-19 Cases') +
-  ylab('Count') 
-
-log_new_cases_hist <- covid_mobility_data %>%
-  ggplot() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  aes(x = log(new_cases)) +
-  geom_histogram(bins=30) +
-  labs(title = 'Log Distribution of New COVID-19 Cases') +
-  xlab('Log(New COVID-19 Cases)') +
-  ylab('Count') 
-
-
-
-#Plot above mobility histograms
-new_cases_hist/log_new_cases_hist
-
-
 ```
 
+```{r scatter plots}
+#Analyze each independent variable compared to the dependent variable (avg_rec_retail_change)
 
-```{r}
-scatter_plot_one <- covid_mobility_data %>%
+quarantine_length_avg_change <- covid_mobility_data %>%
   ggplot() +
   aes(x = quarantine_length, y = avg_retail_rec_change) +
   geom_point() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  #ggtitle("Total Disbursed Amount vs Total Votes") +
-  #xlab("Campaign Total Disbursed Amount ($)") +
-  #ylab("General Campaign Total Votes") +
-  scale_x_continuous(labels = scales::comma) +
-  scale_y_continuous(labels = scales::comma) 
+  ggtitle("Quarantine Length vs Average Retail_Rec Change ") +
+  xlab("Quarantine Length (Days)") +
+  ylab("Average Retail_Rec Change (%)") 
 
-scatter_plot_two <- covid_mobility_data %>%
+at_home_avg_change <- covid_mobility_data %>%
   ggplot() +
-  aes(x = log(quarantine_length), y = avg_retail_rec_change) +
+  aes(x = at_home_order, y = avg_retail_rec_change) +
   geom_point() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  #ggtitle("Total Disbursed Amount vs Total Votes") +
-  #xlab("Campaign Total Disbursed Amount ($)") +
-  #ylab("General Campaign Total Votes") +
-  scale_x_continuous(labels = scales::comma) +
-  scale_y_continuous(labels = scales::comma) 
+  ggtitle("At Home Order vs Average Retail_Rec Change ") +
+  xlab("At Home Order") +
+  ylab("Average Retail_Rec Change (%)") 
 
-scatter_plot_one/scatter_plot_two
 
-scatter_plot_three <- covid_mobility_data %>%
+mask_order_avg_change <- covid_mobility_data %>%
   ggplot() +
-  aes(x = in_quarantine, y = avg_retail_rec_change) +
+  aes(x = mask_order, y = avg_retail_rec_change) +
   geom_point() +
   theme(plot.title = element_text(hjust = 0.5)) +
-  #ggtitle("Total Disbursed Amount vs Total Votes") +
-  #xlab("Campaign Total Disbursed Amount ($)") +
-  #ylab("General Campaign Total Votes") +
-  scale_x_continuous(labels = scales::comma) +
-  scale_y_continuous(labels = scales::comma) 
+  ggtitle("Mask Order vs Average Retail_Rec Change ") +
+  xlab("Mask Order") +
+  ylab("Average Retail_Rec Change (%)") 
 
-scatter_plot_three
+
+new_cases_avg_change <- covid_mobility_data %>%
+  ggplot() +
+  aes(x = new_cases_per_100k, y = avg_retail_rec_change) +
+  geom_point() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("New Cases Per 100K vs Average Retail_Rec Change ") +
+  xlab("New Cases Per 100K") +
+  ylab("Average Retail_Rec Change (%)") 
+
+pop_density_avg_change <- covid_mobility_data %>%
+  ggplot() +
+  aes(x = population_density, y = avg_retail_rec_change) +
+  geom_point() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Population Density vs Average Retail_Rec Change ") +
+  xlab("Population Density") +
+  ylab("Average Retail_Rec Change (%)") 
+
+#Plot above scatterplots
+quarantine_length_avg_change
+at_home_avg_change
+mask_order_avg_change
+new_cases_avg_change
+pop_density_avg_change
 ```
 
 
 
-# Produce a Descriptive Model 
-
-### Given your observations, produce a linear model that you think does a good job at describing the relationship. You should decide what transformation to apply to each variable and also how to include state
+# Produce Descriptive Models
 
 ```{r fit linear model, echo=TRUE, warning=FALSE, message=FALSE}
-
-
-
-# Verify positive, numeric values for variables
-
-
-
 # Create LM models 
+model_1 <- lm(avg_retail_rec_change ~ at_home_order, data=covid_mobility_data)
+model_2 <- lm(avg_retail_rec_change ~ 
+             at_home_order +                          # Primary variable of interest
+             quarantine_length + mask_order +         # Other covid policies/happenings that may confound
+             population_density + new_cases_per_100k, # State level effects that may confound
+              data=covid_mobility_data)
+model_3 <- lm(avg_retail_rec_change ~ 
+               at_home_order +                           # Primary variable of interest
+               quarantine_length + mask_order +          # Other covid policies/happenings that may confound
+               population_density + new_cases_per_100k + # State level effects that may confound
+               new_cases + population +                  # Likely collinear variables
+               avg_parks_change,                         # mobility related control we decided against, data=covid_mobility_data)
+                data=covid_mobility_data)
 
-model_1 <- lm(avg_retail_rec_change ~ in_quarantine, data=covid_mobility_data)
-model_2 <- lm(avg_retail_rec_change ~ in_quarantine+quarantine_length+mask_order+new_cases, data=covid_mobility_data)
-model_3 <- lm(avg_retail_rec_change ~ in_quarantine+quarantine_length+mask_order+new_cases+avg_parks_change, data=covid_mobility_data)
-summary(model_1)
 
 
 ```
@@ -195,7 +219,7 @@ summary(model_1)
 
 
 
-### Interpret the model coefficients you estimate.
+### Interpret the model coefficients
 ```{r, echo=TRUE, warning=FALSE, message=FALSE}
 
 # View details of both models
