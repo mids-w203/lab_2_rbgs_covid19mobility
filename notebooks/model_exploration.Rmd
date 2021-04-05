@@ -1,0 +1,215 @@
+---
+title: "COVID-19 Mobility Model Building"
+author: "Sumedh Shah"
+subtitle: 'w203 Lab 2'
+output:
+  pdf_document: default
+  word_document: default
+---
+
+
+
+
+```{r load packages, message=FALSE}
+library(gridExtra)                       
+library(tidyverse)
+library(magrittr)
+library(ggplot2)
+library(patchwork)
+library(sandwich)
+library(lmtest)
+library(stargazer)
+theme_set(theme_minimal())
+knitr::opts_chunk$set(dpi = 300)
+```
+
+```{r load data}
+covid_mobility_data = read_csv('study_data.csv')
+head(covid_mobility_data)
+```
+
+
+```{r}
+#In Quarantine histogram
+covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = in_quarantine) +
+  geom_histogram(bins=30) +
+  labs(title = 'Distribution of In Quarantine') +
+  xlab('In Quarantine') +
+  ylab('Count') 
+
+# Mobility Histograms
+retail_rec_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = avg_retail_rec_change) +
+  geom_histogram(bins=30) +
+  labs(title = 'Distribution of Retail/Rec Mobility Change') +
+  xlab('Percent Change in Retail/Rec Mobility') +
+  ylab('Count') 
+
+park_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = avg_parks_change) +
+  geom_histogram(bins=30) +
+  labs(title = 'Distribution of Park Mobility Change') +
+  xlab('Percent Change in Park Mobility') +
+  ylab('Count') 
+
+#Plot above mobility histograms
+retail_rec_hist/park_hist
+
+# Quarantine Length Histograms
+quarantine_length_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = quarantine_length) +
+  geom_histogram(bins=30) +
+  xlim(-10,100) +
+  labs(title = 'Distribution of Quarantine Length') +
+  xlab('Quarantine Length (Number of Days)') +
+  ylab('Count')
+
+log_quarantine_length_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = log(quarantine_length)) +
+  geom_histogram(bins=30) +
+  labs(title = 'Log Distribution of Quarantine Length') +
+  xlab('Log(Quarantine Length)') +
+  ylab('Count')
+
+# Plot quarantine length histograms
+quarantine_length_hist/log_quarantine_length_hist
+
+
+# Mask Order Histogram
+mask_order_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = mask_order) +
+  geom_histogram(bins=30) +
+  labs(title = 'Distribution of Mask Order') +
+  xlab('Mask Order') +
+  ylab('Count') 
+
+
+#Plot above mask order histogram
+mask_order_hist
+
+# New cases Histogram
+new_cases_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = new_cases) +
+  geom_histogram(bins=30) +
+  xlim(-100,2000) +
+  labs(title = 'Distribution of New COVID-19 Cases') +
+  xlab('New COVID-19 Cases') +
+  ylab('Count') 
+
+log_new_cases_hist <- covid_mobility_data %>%
+  ggplot() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  aes(x = log(new_cases)) +
+  geom_histogram(bins=30) +
+  labs(title = 'Log Distribution of New COVID-19 Cases') +
+  xlab('Log(New COVID-19 Cases)') +
+  ylab('Count') 
+
+
+
+#Plot above mobility histograms
+new_cases_hist/log_new_cases_hist
+
+
+```
+
+
+```{r}
+scatter_plot_one <- covid_mobility_data %>%
+  ggplot() +
+  aes(x = quarantine_length, y = avg_retail_rec_change) +
+  geom_point() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  #ggtitle("Total Disbursed Amount vs Total Votes") +
+  #xlab("Campaign Total Disbursed Amount ($)") +
+  #ylab("General Campaign Total Votes") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma) 
+
+scatter_plot_two <- covid_mobility_data %>%
+  ggplot() +
+  aes(x = log(quarantine_length), y = avg_retail_rec_change) +
+  geom_point() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  #ggtitle("Total Disbursed Amount vs Total Votes") +
+  #xlab("Campaign Total Disbursed Amount ($)") +
+  #ylab("General Campaign Total Votes") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma) 
+
+scatter_plot_one/scatter_plot_two
+
+scatter_plot_three <- covid_mobility_data %>%
+  ggplot() +
+  aes(x = in_quarantine, y = avg_retail_rec_change) +
+  geom_point() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  #ggtitle("Total Disbursed Amount vs Total Votes") +
+  #xlab("Campaign Total Disbursed Amount ($)") +
+  #ylab("General Campaign Total Votes") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma) 
+
+scatter_plot_three
+```
+
+
+
+# Produce a Descriptive Model 
+
+### Given your observations, produce a linear model that you think does a good job at describing the relationship. You should decide what transformation to apply to each variable and also how to include state
+
+```{r fit linear model, echo=TRUE, warning=FALSE, message=FALSE}
+
+
+
+# Verify positive, numeric values for variables
+
+
+
+# Create LM models 
+
+model_1 <- lm(avg_retail_rec_change ~ in_quarantine, data=covid_mobility_data)
+model_2 <- lm(avg_retail_rec_change ~ in_quarantine+quarantine_length+mask_order+new_cases, data=covid_mobility_data)
+model_3 <- lm(avg_retail_rec_change ~ in_quarantine+quarantine_length+mask_order+new_cases+avg_parks_change, data=covid_mobility_data)
+summary(model_1)
+
+
+```
+
+
+
+
+### Interpret the model coefficients you estimate.
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+# View details of both models
+stargazer( 
+  model_1,
+  model_2,
+  model_3,
+  se =list(sqrt(diag(vcovHC(model_1))),sqrt(diag(vcovHC(model_2)))),
+  type = 'text'
+)
+
+```
+
+
+
+
+
