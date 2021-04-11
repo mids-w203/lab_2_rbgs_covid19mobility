@@ -10,6 +10,7 @@ library(tidyverse)
 library(patchwork)
 library(stargazer)
 library(sandwich)
+library(Hmisc)
 setwd('.')
 
 minimal_theme_GL <- theme(
@@ -104,4 +105,16 @@ stargazer(
   # type = 'latex'
   type = 'text'
 )
+```
+
+
+```{r, normall_distributed_errors}
+# describe(data)
+data <- data %>% mutate(res = residuals(model_two))
+```
+
+```{r, normall_distributed_errors}
+hist(x=data$res, xlab='Residuals', main='Histogram of residuals')
+qqnorm(y=data$res, pch = 1,frame=FALSE)
+qqline(data$res, col = "steelblue", lwd = 2)
 ```
