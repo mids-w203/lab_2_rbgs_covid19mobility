@@ -179,6 +179,127 @@ qq <- data_filtered %>%
   minimal_theme_RBGS
 ```
 
+```{r prediction v residuals plot, echo = FALSE, warning = FALSE, message = FALSE}
+pred_v_resid <- data_filtered %>%
+  ggplot(aes(predictions, residuals)) + 
+  geom_point() + 
+  minimal_theme_RBGS +
+  geom_hline(yintercept = 0, color = "red") +
+  stat_smooth() + labs(title = "Predictions v. Residuals - Model Two")
+
+## Plot Each Variable
+q_length_resids <- data_filtered %>% 
+  ggplot(aes(quarantine_length, residuals)) + 
+  geom_point() + 
+  stat_smooth()
+
+pop_density_resids <- data_filtered %>% 
+  ggplot(aes(population_density, residuals)) + 
+  geom_point() + 
+  stat_smooth()
+
+cases_resids <- data_filtered %>% 
+  ggplot(aes(new_cases_per_100k, residuals)) + 
+  geom_point() + 
+  stat_smooth()
+
+at_home_resids <- data_filtered %>% 
+  ggplot(aes(at_home_order, residuals)) + 
+  geom_point() + 
+  stat_smooth()
+
+mask_resids <- data_filtered %>% 
+  ggplot(aes(mask_order, residuals)) + 
+  geom_point() + 
+  stat_smooth()
+```
+
+```{r CLM4, echo = FALSE, warning = FALSE, message = FALSE}
+# Scale-location
+# sc_loc <- plot(model_two, which=3)
+
+# Zoomed scale-location
+## Get standardized residuals
+r <- rstandard(model_two) 
+
+dropped_obs <- data_filtered %>% 
+  filter(
+    abs(r) < 0.5
+  )
+
+model_two_drop <- dropped_obs %>%
+  lm(avg_retail_rec_change ~ 
+       at_home_order +                      
+       quarantine_length + mask_order + 
+       population_density + new_cases_per_100k, 
+     .)
+
+# sc_loc2 <- plot(model_two_drop, which=3)
+
+```
+
+```{r COVID EDA, echo = FALSE, warning = FALSE, message = FALSE}
+# Load data
+nyt_covid_data <- data.table::fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
+
+# Filter Data
+nyt_covid <- nyt_covid_data %>% 
+  mutate(
+    date = as.Date(date)
+  ) %>% 
+  select(
+    date
+    ,state
+    ,cases
+    ,deaths
+  )
+
+# Plot 1
+ny_state_covid <- nyt_covid %>%
+  group_by(
+    state
+    ) %>%
+  filter(
+    state == 'New York' | state == 'California' | state == 'Texas'
+  ) %>%
+  ggplot() +
+  aes(x = date, y = cases, color=state) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x = "Date",
+       y = " Cumulative Count of Cases",
+       title = "Cumulative Cases for Any Given Day in New York State") +
+  scale_y_continuous(labels = scales::comma)
+
+
+# Plot 2
+nyt_covid_new <- nyt_covid %>%
+  group_by(
+    state
+    ) %>%
+  mutate(
+    new_cases = cases - lag(cases, default = first(cases), order_by = date)
+    ,new_deaths = deaths - lag(deaths, default = first(deaths), order_by = date)
+  )
+
+ny_state_covid_new <- nyt_covid_new %>%
+  group_by(
+    state
+    ) %>%
+  filter(
+    state == 'New York' | state == 'California' | state == 'Texas' | state == 'District of Columbia'
+  ) %>%
+  ggplot() +
+  aes(x = date, y = new_cases, color=state) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x = "Date",
+       y = " Number of New Cases",
+       title = "Number of New Cases per Day in New York State") +
+  scale_y_continuous(labels = scales::comma)
+```
+
+
 \newpage
 
 # Introduction
@@ -304,10 +425,10 @@ We added daily COVID-19 case changes without the normalization by population to 
 
 Finally, we included percent changes in mobility at parks (local parks, national parks, public beaches, plazas, etc) as our last variable. We were interested in whether mobility patterns at these public parks were similar to mobility patterns at retail and recreational locations, or non-essential mobility, and if traveling more to these parks also influenced non-essential mobility. We assumed travel to these parks was deemed essential for mental and physical health purposes and did not exhibit the same level of non-essential activity.
 
-With the exception of mobility at parks, the additional variables may have overlapping relationships to variables in the primary model and likely cause overfitting of  the model. While all three additional variables are not necessary, they could still provide some additional effect on overall non-essential mobility. At the minimum, increased mobility at parks may indicate an overall increase in mobility at retail and recreational locations. [insert table 1 here - regression table]
+With the exception of mobility at parks, the additional variables may have overlapping relationships to variables in the primary model and likely cause overfitting of  the model. While all three additional variables are not necessary, they could still provide some additional effect on overall non-essential mobility. At the minimum, increased mobility at parks may indicate an overall increase in mobility at retail and recreational locations.
           
-```{r, results = 'asis', header = FALSE, message = FALSE, error = FALSE, echo = FALSE}
-reg_table <- stargazer(
+```{r, header = FALSE, results = 'asis',  message = FALSE, error = FALSE, echo = FALSE, warning = FALSE}
+stargazer(
   model_one, 
   model_two,
   model_three,
@@ -420,57 +541,79 @@ While we believe our model is able to identify trends in the data and represents
 6. Wong, D. W., & Li, Y. (2020). Spreading of COVID-19: Density matters [Abstract]. PLOS ONE, 15(12). doi:10.1371/journal.pone.0242398
 
 \newpage
+
 ## Appendix B: Discussion on missing observations in mobility dataset
 During Exploration of the retail and recreation mobility data, patterns were observed in missing observations as noted in Part II, Model Building. 
 
 First, the distribution of missing values was not equal across states, as seen below in Appendix B.1. This poses a particular threat in population inference, especially for states with high percentages of missing observations. 
 
-                [Insert Appendix B.1 here - Missing by state]
-                
+![Appendix B.1](./missing_observations_screengrabs/AppendixB1.png)
 In further exploration of the data, a skewed distribution of missing data by month was observed, with heavy amounts of omitted data occurring in the first two months of the data. 
 
-                [Insert Appendix B.2 here - Missing by month]
+![Appendix B.2](./missing_observations_screengrabs/AppendixB2.png)
                 
 Isolating on the first two months, it is clear there is a systematic pattern of missing observations by day of week. 
 
-                [Insert Appendix B.3 here - Missing by Date]
+![Appendix B.3](./missing_observations_screengrabs/AppendixB3.png)
                 
 Returning to the entire dataset, we identified a pattern in missing data by day-of-week as well - where highest percentages of NA’s occurred during the week. Without the ability to locate further information on missingness, the group was forced to drop these observations. Additionally,  due to the time series nature of the data and the fluid trend, outlier treatment, such as interpolation or replacement with averages, was not administered due to the risk of overshadowing trends real trends in included data.
 
-                [Insert Appendix B.4 here - Missing by DOW]
+![Appendix B.4](./missing_observations_screengrabs/AppendixB4.png)
+
+
+\newpage
 
 ## Appendix C: Discussion on variable transformation in NYT COVID-19 Dataset
 
-                [Insert Appendix C.1 here - Cumulative Cases]
-                
-                [Insert Appendix C.2 here - New Cases]
+```{r COVIDEDA1, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'prediction versus residuals by variable'}
+ny_state_covid | ny_state_covid_new
+```
+
+\newpage
 
 ## Appendix D: CLM Requirement #2: Linear Conditional Expectation 
 In our tests of linear conditional expectation, we have not identified strong enough evidence to suggest this rule is violated to the extent that the classical linear model is no longer usable. In evaluation of this requirement, we focused on identification of a sufficiently linear prediction line when plotting predictions versus residuals, at or around the zero intercept (Appendix D.1). Across predicted  values, the modeled line was very close to zero, with a fairly flat trend for the majority of observations. The right side of the graph does exhibit an uptick in prediction error which is influenced by outliers that are further discussed in Appendix F - CLM 4. 
 
-                [Insert Appendix D.1 here - linear condiditonal expectation plot]
+```{r predResid, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'Predictions versus Residuals'}
+pred_v_resid
+```
 
 Additionally, there was no strong trend that could be identified as a lower-order polynomial, log, or square root. In addition to this summary plot, we evaluated linear relationships of each dependent variable against residuals (Appendix D.2). None of single-variable plots exhibited strong nonlinear trends, with the exception of new cases per one hundred thousand. The decision to not transform this variable was documented Part II, model construction.
 
-                [Insert Appendix D.2 here - linear condiditonal expectation plot, by variable]
+```{r predResid2, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=6, fig.cap = 'prediction versus residuals by variable'}
+(q_length_resids | pop_density_resids) /
+  (mask_resids | at_home_resids) /
+  (cases_resids | plot_spacer())
+```
+\newpage
 
 ## Appendix E: CLM Requirement #3: No Perfect Collinearity
 Because we don’t see any coefficients dropped from our primary model in table 1, we can safely assume no perfect collinearity. Also, all of the coefficients have values that are comprehensible and can easily be interpreted. FInally, we looked at the Variance Inflation Factor (VIF), which measures how much the variance of each regression coefficient is inflated due to multicollinearity in the model. We noticed that the VIF values are very close to 1, indicating that each variable had minimal inflated variance due to potential multicollinearity in the model. 
 
-                [Insert Appendix E.1 here - VIF table]
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'prediction versus residuals by variable'}
+car::vif(model_two)
+```
+
+\newpage
 
 ## Appendix F: CLM Requirement #4: Homoskedastic Errors 
 In order to assess whether the distribution of the errors is homoskedastic, we will examine the residuals versus fitted plot again (Appendix D.1). We are interested in whether or not there is a band of even thickness form left to right. There appears to be an increase in the variance of residuals on the right-end side as noted in Appendix D, CLM 2. However, it is not severe. 
 
 Another idea is to examine the scale-location plot. Homoskedasticity would show up on the plot as a flat smoothing curve. Based on Appendix F.1, there appears to be an uptick on the variances on the residual points with fitted variables, suggesting a slight problem with heteroskedasticity (non-constant variances in residual errors). This could be attributed to the new cases per 100k variable obtained from the COVID-19 dataset as we assumed negative new case counts were corrective adjustments made to erroneous data entry. In addition, we also observed "data dumps" on a given day in certain states such as Missouri in which 290 new cases in the previous day and the 50,328 new cases in the next day. The “data dumps” are assumed to be the change in cases definition as mentioned in the COVID-19 data interim section.
 
-                [Insert Appendix F.1 here - scale-location plot]
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'prediction versus residuals by variable'}
+plot(model_two, which=3)
+```
 
 In an attempt to further research on the uptick in scale-location plot, we filtered out residuals above 0.5 for the sake of homoskedasticity at the cost of removing 9,641 outlier data points. Although the uptick has reduced in the scale-location plot (figure below), the trade-off is that close to 10,000 data points were omitted. 
 
-                [Insert Appendix F.2 here - outlier-treated scale-location plot]
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'prediction versus residuals by variable'}
+plot(model_two_drop, which=3)
+```
 
 As mentioned above, we attribute the outliers to erroneous data entries or “data dumps”. With this in mind, there is no concern of homoskedastic errors as the issue is not severe enough to warrant violation of CLM 4 assumption.
+
+\newpage
 
 ## Appendix G: Difference-in-Difference Discussion and Estimation
 The next requirement was to understand when the intervention happened. The Stay at Home orders came into effect at different points in time in the year 2020. Some states were proactive and were quick to introduce one in March while others never imposed one. The intervention date was calculated by taking the average of the earliest Stay at Home order and the last Stay at Home order which came into effect. This date was calculated to be March 28th, 2020. One of the primary reasons we did not move forward with Difference-in-Differences 
