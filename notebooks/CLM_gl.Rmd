@@ -1,0 +1,102 @@
+---
+title: "CLM_gl"
+output: pdf_document
+---
+
+```{r}
+install.packages(ggfortify)
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyverse)
+library(patchwork)
+library(stargazer)
+library(sandwich)
+setwd('.')
+
+minimal_theme_GL <- theme(
+      axis.text = element_text(color="#959292"),
+      axis.line = element_line(color = "#959292", size = .25), 
+      axis.title = element_text(color="#959292"),
+      axis.ticks = element_line(color = "#959292", size = .25),
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(), 
+      panel.background = element_blank(), 
+      plot.title = element_text(color="#959292", size = 11),
+      plot.subtitle = element_text(color="#959292"),
+      legend.text = element_text(color="#959292"), 
+      legend.title = element_blank(), 
+      # legend.justification=c(0,1), 
+      # legend.position=c(0,1), 
+      legend.direction = 'vertical')
+```
+
+```{r}
+data <- read.csv('../data/processed/processed_data.csv')
+```
+
+## Set the model 
+```{r model two}
+model_two <- data %>%
+  lm(avg_retail_rec_change ~ 
+       at_home_order +                          # Primary variable of interest
+       quarantine_length + mask_order +         # Other covid policies/happenings that may confound
+       population_density + new_cases_per_100k, # State level effects that may confound
+     .) 
+```
+
+## CLM #2: Linear Conditional Expectation
+
+Since this is a higher-dimensional model, we are choosing to test for Linear Conditional Expectation by comparing predictions versus residuals. 
+```{r}
+# Augment data with predictions and residuals
+
+data <- data %>%
+  # drop_na() %>%
+  mutate(
+    predictions = predict(model_two), 
+    residuals = resid(model_two)
+  )
+
+plot(model_two)
+
+data %>%
+  ggplot(aes(predictions, residuals)) + 
+  geom_point() + 
+  minimal_theme_GL +
+  geom_hline(yintercept = 0, color = "red") +
+  stat_smooth() + labs(title = "Predictions v. Residuals - Model Two") #+
+  # xlim(-60,-5)
+
+## Plot Each Variable
+q_length_resids <- data %>% 
+  ggplot(aes(quarantine_length, residuals)) + 
+  geom_point() + 
+  stat_smooth()
+
+pop_density_resids <- data %>% 
+  ggplot(aes(population_density, residuals)) + 
+  geom_point() + 
+  stat_smooth()
+
+cases_resids <- data %>% 
+  ggplot(aes(new_cases_per_100k, residuals)) + 
+  geom_point() + 
+  stat_smooth()
+
+at_home_resids <- data %>% 
+  ggplot(aes(at_home_order, residuals)) + 
+  geom_point() + 
+  stat_smooth()
+
+mask_resids <- data %>% 
+  ggplot(aes(mask_order, residuals)) + 
+  geom_point() + 
+  stat_smooth()
+
+q_length_resids
+pop_density_resids
+cases_resids
+at_home_resids
+mask_resids
+```
+
