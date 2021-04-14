@@ -534,6 +534,15 @@ We encountered two concerns with the Differences-in-Differences estimation techn
 
 # Discussion of Omitted Variables
 
+Our primary model from section III (Regression models) uses stay-at-home variable as the independent variable of interest and four other control variables (duration of stay-at-home order, mask mandate, population density & the new Covid case count) as model inputs. There are many omitted variables which go unnoticed as a part of the analysis. The effect of political leanings, demographics, and individuals at risk is discussed below.
+
+Urban and rural areas in the US have very different philosophies when it comes to government policies, which may result in variation of the public response and acceptance. The change in acceptance or disregard of COVID-19 policies could lead to higher weightage on the stay-at-home order. This omitted variable likely causes our stay-at-home effect to be overstated and biased away from zero.  
+
+Demographic information per county has shown that people from lower socioeconomic groups, especially African Americans and Latinos are more likely to get infected[7]. People in this demographic are also employed by the service industry and other blue collared jobs where it is impossible to work remotely. As a result, we believe that residents in this demographic would not change their non-essential mobility behavior to the same degree as someone working remotely from home, since they are spending a large portion of their day in a high risk environment. This would lead to an overestimation of the effect of stay-at-home orders, which is a bias away from zero.  
+
+Finally, individuals at risk are another omitted variable that could affect mobility. An example of individuals at risk would be college students with compromised immune system disorders. They are less likely to engage in social activities compared to college students who are healthy. This can be extended to the population in general where residents at risk are advised to be cautious and limit mobility to essential needs. Omitting this results leads to an overestimation of the effect of stay-at-home order, which is a bias away from zero.  
+
+
 # Conclusion
 In conclusion, our model provides evidence that there is a strong negative relationship between stay-at-home orders and non-essential mobility. This result provides policymakers evidence that if they impose restrictions on non-essential movement, they may expect a 28% decrease. 
 
@@ -561,6 +570,8 @@ While we believe our model is able to identify trends in the data and represents
 5. Reese, P., & Bollag, S. (2020, December 23). Californians still going out despite stay-at-home orders, tracking data shows. Sacramento Bee. Retrieved April 5, 2021, from https://www.sacbee.com/news/coronavirus/article248036890.html
 
 6. Wong, D. W., & Li, Y. (2020). Spreading of COVID-19: Density matters [Abstract]. PLOS ONE, 15(12). doi:10.1371/journal.pone.0242398
+
+7. Mays, Jeffery C., and Andy Newman. “Virus Is Twice as Deadly for Black and Latino People Than Whites in N.Y.C.” The New York Times, The New York Times, 8 Apr. 2020, www.nytimes.com/2020/04/08/nyregion/coronavirus-race-deaths.html?smid=url-share. 
 
 \newpage
 
@@ -610,7 +621,7 @@ Additionally, there was no strong trend that could be identified as a lower-orde
 \newpage
 
 ## Appendix E: CLM Requirement #3: No Perfect Collinearity
-Because we don’t see any coefficients dropped from our primary model in table 1, we can safely assume no perfect collinearity. Also, all of the coefficients have values that are comprehensible and can easily be interpreted. FInally, we looked at the Variance Inflation Factor (VIF), which measures how much the variance of each regression coefficient is inflated due to multicollinearity in the model. We noticed that the VIF values are very close to 1, indicating that each variable had minimal inflated variance due to potential multicollinearity in the model. 
+Because we don’t see any coefficients dropped from our primary model in table 1, we can safely assume no perfect collinearity. Also, all of the coefficients have values that are comprehensible and can easily be interpreted. Finally, we looked at the Variance Inflation Factor (VIF), which measures how much the variance of each regression coefficient is inflated due to multicollinearity in the model. We noticed that the VIF values are very close to 1, indicating that each variable had minimal inflated variance due to potential multicollinearity in the model. 
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'prediction versus residuals by variable'}
 car::vif(model_two)
