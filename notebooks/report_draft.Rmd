@@ -302,6 +302,28 @@ ny_state_covid_new <- nyt_covid_new %>%
 
 \newpage
 
+```{r state comp EDA, echo = FALSE, warning = FALSE, message = FALSE}
+state_comp <- data_filtered %>%
+  filter(state == 'Connecticut' | state == 'Massachusetts') %>%
+  select(at_home_order, state, date, avg_retail_rec_change) %>%
+  mutate(date = as.Date(date)) %>%
+  group_by(state) %>%
+  ggplot() +
+  aes(x = date, y = avg_retail_rec_change, color = state) %>%
+  geom_point() + 
+  geom_hline(yintercept = 0, color = "grey", size=.5) +
+  geom_vline(xintercept = as.numeric(as.Date('2020-03-24')), color = "#00BFC4", size=.2, linetype = "dashed") +
+  geom_vline(xintercept = as.numeric(as.Date('2020-05-18')), color = "#00BFC4", size=.2, linetype = "dashed") +
+  annotate("text", x = as.Date('2020-04-24'), y = 54, label = "MA at-home-order", color = 'grey') +
+  annotate("rect", xmin = as.Date('2020-03-24'), xmax = as.Date('2020-05-18'), ymin = -100, ymax = 50,
+  alpha = .2, fill = "#00BFC4") +
+  minimal_theme_RBGS +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle('Connecticut vs. Massachusetts Mobility Trends')
+          # , subtitle = "Comparing MA stay-at-home order to no stay-at-home order in CT")
+```
+
+
 # Introduction
 With minimal federal restrictions in place to control the spread of COVID-19, a majority of state policymakers adopted stay-at-home policies during the early months of the pandemic in order to control the spread of the virus. These stay-at-home orders ranged from one to ten months, with the intent of limiting mobility to only essential activities. We had the unique opportunity to measure the efficacy of these policies across the United States, over the period of February 2020 to March of 2021. 
 
@@ -517,7 +539,7 @@ In conclusion, our model provides evidence that there is a strong negative relat
 
 Each of our control variables exhibited significant negative relationships as well, with the exception of duration of stay-at-home order. The positive nature of this relationship suggests there may be a tipping point, in which “COVID-fatigued” individuals start to increase their non-essential activities after extended periods of lock-down. Mask mandates, number of new COVID-19 cases, and population density exhibited negative relationships with non-essential mobility as well, but were much smaller in magnitude. 
 
-Therefore, we would suggest that policymakers looking to reduce non-essential mobility may receive the highest response by imposing stay-at-home orders of reasonable length, and by publishing publicly-accessible trends in local COVID-19 infections. 
+Therefore, we would suggest that policymakers looking to reduce non-essential mobility may receive the highest response by imposing stay-at-home orders of reasonable length, and by publishing publicly-accessible trends in local COVID-19 infections. While it is tempting to use this research to identify the "optimal" stay-at-home duration from a mobility efficiency perspective, it is not the purpose of our research and would require further study. 
 
 While we believe our model is able to identify trends in the data and represents a causal relationship between our dependent and independent variables,  omitted variables, the inability to operationalize Difference-in-Differences, and violations of the CLM provide risk to our model. 
 
@@ -635,3 +657,9 @@ The results from the difference-in-differences model showed that non-essential m
 
 Diff-in-diff  model works well when both the control and treatment groups are identical but when taking states into account, the states are far from identical. They have different political leanings and philosophies. Due to the polarity in the country, a lot of states did not communicate the severity of the COVID-19 virus relative to other states. Some states did not enforce a mask mandate. There were pockets in the country where masks were seen as a violation of freedom while other states like California treated COVID with utmost urgency and restricted businesses from operating. The difference in what the government communicates to its residents is not captured by this model. Other factors such as cost of living, and reliance on the global economy are key distinguishing factors among states. Considering the aforementioned limitations, we concluded that a Diff-in-diff model would not paint an accurate picture of non-essential mobility.
 
+\newpage
+
+## Appendix H: Comparison of state in and out of quarantine EDA
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=6}
+state_comp
+```
