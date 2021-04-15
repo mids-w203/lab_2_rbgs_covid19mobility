@@ -268,7 +268,7 @@ ny_state_covid <- nyt_covid %>%
   theme(axis.text.x = element_text(angle = 90)) +
   labs(x = "Date",
        y = " Cumulative Count of Cases",
-       title = "Cumulative Cases for Any Given Day in New York State") +
+       title = "Cumulative Cases for Any Given Day") +
   scale_y_continuous(labels = scales::comma)
 
 
@@ -295,7 +295,7 @@ ny_state_covid_new <- nyt_covid_new %>%
   theme(axis.text.x = element_text(angle = 90)) +
   labs(x = "Date",
        y = " Number of New Cases",
-       title = "Number of New Cases per Day in New York State") +
+       title = "Number of New Cases per Day") +
   scale_y_continuous(labels = scales::comma)
 ```
 
@@ -304,7 +304,7 @@ ny_state_covid_new <- nyt_covid_new %>%
 
 ```{r state comp EDA, echo = FALSE, warning = FALSE, message = FALSE}
 state_comp <- data_filtered %>%
-  filter(state == 'Connecticut' | state == 'Massachusetts') %>%
+  filter(state == 'Kansas' | state == 'Arkansas') %>%
   select(at_home_order, state, date, avg_retail_rec_change) %>%
   mutate(date = as.Date(date)) %>%
   group_by(state) %>%
@@ -312,44 +312,48 @@ state_comp <- data_filtered %>%
   aes(x = date, y = avg_retail_rec_change, color = state) %>%
   geom_point() + 
   geom_hline(yintercept = 0, color = "grey", size=.5) +
-  geom_vline(xintercept = as.numeric(as.Date('2020-03-24')), color = "#00BFC4", size=.2, linetype = "dashed") +
-  geom_vline(xintercept = as.numeric(as.Date('2020-05-18')), color = "#00BFC4", size=.2, linetype = "dashed") +
-  annotate("text", x = as.Date('2020-04-24'), y = 54, label = "MA at-home-order", color = 'grey') +
-  annotate("rect", xmin = as.Date('2020-03-24'), xmax = as.Date('2020-05-18'), ymin = -100, ymax = 50,
+  geom_vline(xintercept = as.numeric(as.Date('2020-04-03')), color = "#00BFC4", size=.2, linetype = "dashed") +
+  geom_vline(xintercept = as.numeric(as.Date('2020-04-27')), color = "#00BFC4", size=.2, linetype = "dashed") +
+  annotate("text", x = as.Date('2020-04-24'), y = 54, label = "Kansas at-home-order", color = 'black') +
+  annotate("rect", xmin = as.Date('2020-04-03'), xmax = as.Date('2020-04-27'), ymin = -100, ymax = 50,
   alpha = .2, fill = "#00BFC4") +
   minimal_theme_RBGS +
   theme(axis.text.x = element_text(angle = 90)) +
-  ggtitle('Connecticut vs. Massachusetts Mobility Trends')
-          # , subtitle = "Comparing MA stay-at-home order to no stay-at-home order in CT")
+  ggtitle('Kansas vs. Arkansas Mobility Trends')
+          # , subtitle = "Comparing KS stay-at-home order to no stay-at-home order in AR")
 ```
 
 
 # Introduction
 With minimal federal restrictions in place to control the spread of COVID-19, a majority of state policymakers adopted stay-at-home policies during the early months of the pandemic in order to control the spread of the virus. These stay-at-home orders ranged from one to ten months, with the intent of limiting mobility to only essential activities. We had the unique opportunity to measure the efficacy of these policies across the United States, over the period of February 2020 to March of 2021. 
 
-In particular, our study focused on whether stay-at-home orders are effective in reducing non-essential travel, measured by changes in retail and recreational activities. We gathered data at a daily level for each state in the US. In order to observe non-essential travel, we focused on daily percent changes in mobility patterns to any retail and recreational locations, compared to mobility patterns on those respective days in January-February 2020. 
+In particular, our study focused on whether stay-at-home orders are effective in reducing non-essential travel, measured by changes in retail and recreational activities. We gathered data at a daily level for each state in the US. In order to observe non-essential travel, we focused on daily percent changes in mobility patterns to any retail and recreational locations, compared to mobility patterns on those respective days in January to February 2020. 
 
 Finally, based on the date and the state within the US, we indicated whether a stay-at-home order was in place or not for each day. While we believe stay-at-home orders are the primary effect in reducing non-essential mobility, we recognize that stay-at-home orders are not the sole cause of changes in non-essential travel. Therefore, we also utilized other data such as new COVID cases for a given day, whether a mask order was in effect for that day, duration of the stay-at-home order, and population density. 
 
-Both national and state policymakers are facing difficult challenges in reducing further risks of COVID-19 spread, such as the decision to impose stay-at-home orders. In some states, legislators face backlash for not imposing stringent restrictions, while others are criticized for shutting down the economy for too long. Governors in rural states such as Arkansas, Nebraska, Iowa, North and South Dakota have restrained from imposing stay-at-home orders. Other states drew political ire and heightened economic concerns due to prolonged stay-at-home order duration. We believe this research will quantify the effectiveness of stay-at-home orders and public response  to these laws. Moreover, we hope policymakers can better evaluate how well future restrictions may work and whether citizens would behave similarly with such restrictions.
+Both national and state policymakers are facing difficult challenges in reducing further risks of COVID-19 spread, such as the decision to impose stay-at-home orders. In some states, legislators face backlash for not imposing stringent restrictions, while others are criticized for shutting down the economy for too long. Governors in rural states such as Arkansas, Nebraska, Iowa, North and South Dakota have restrained from imposing stay-at-home orders. Other states drew political ire and heightened economic concerns due to prolonged stay-at-home order duration. 
+
+We believe this research will quantify the effectiveness of stay-at-home orders and public response  to these laws. Moreover, we hope policymakers can better evaluate how well future restrictions may work and whether citizens would behave similarly with such restrictions.
 
 # Model Building Process
 ## Initial Data Loading and Cleaning
 Our final dataset was a combination of three sources of data, including Mobility data (Google LLC 2021), COVID-19 US State Policy Data (Raifman et. al 2020), and COVID-19 Case data (New York Times 2021). 
 
 ### Mobility Data - Interim
-The Google Mobility dataset was used to extract percent changes in mobility, compared to a five week baseline prior to the spread of virus across the United States. These data aid in uncovering differences in behavior as a result of the pandemic. We utilized changes in retail and recreation mobility as a proxy to quantify the changes in non-essential travels. Other variables, such as changes in park or grocery store mobility were omitted as they represented trends in essential travel. The raw data were collected at a county level with daily granularity, from February 15, 2020 to March 14, 2021. County-level observations were aggregated to the state level, by averaging mobility across counties, retaining daily granularity. 
+The Google Mobility dataset was used to extract percent changes in mobility, compared to a five week baseline prior to the spread of virus across the United States. The data aid in uncovering differences in behavior as a result of the pandemic. We utilized changes in retail and recreation mobility as a proxy to quantify the changes in non-essential travels. Other variables, such as changes in park or grocery store mobility were omitted as they represented trends in essential travel. The raw data was collected at a county level with daily granularity, from February 15, 2020 to March 14, 2021. County-level observations were aggregated to the state level, by averaging mobility across counties, retaining daily granularity. 
 
-Documentation provided by Google does not specifically outline missing data, but does discuss the removal of data based on privacy guidelines, which is assumed to be the cause of missing observations. In the one-million-observation-dataset, roughly 300,000 county-level retail and recreation observations contained missing data. These missing observations were characterized in detail, and systematic data-removal patterns were identified (Appendix B). Due to the non-random pattern in missing data, we determined that interpolating or replacing missing observations with zeros would cause misinterpretation of daily trends. The removal of missing observations brings risk to statistical inference. Further discussion on missing data can be found in Appendix B. 
+Documentation provided by Google does not specifically outline missing data, but does discuss the removal of data based on privacy guidelines, which is assumed to be the cause of missing observations. In the one-million observation dataset, roughly 300,000 county-level retail and recreation observations contained missing data. These missing observations were characterized in detail, and systematic data-removal patterns were identified (Appendix B). Due to the non-random pattern in missing data, we determined that interpolating or replacing missing observations with zeros would cause misinterpretation of daily trends. The removal of missing observations brings risk to statistical inference. Further discussion on missing data can be found in Appendix B. 
 
 ### CUSP Data - Interim
-The COVID-19 US State Policy Database (CUSP) tracks dates related to implementation of social safety net, economic, and physical distancing policies in response to the COVID-19 pandemic, as well as state characteristics. For the analysis, the final dataset is built using the Face Masks dataset, Stay at Home dataset, and the State Characteristics dataset at a state level. 
+The COVID-19 US State Policy Database (CUSP) tracks dates related to implementation of social safety net, economic, and physical distancing policies in response to the COVID-19 pandemic, as well as state characteristics. For the analysis, the final dataset was built using the Face Masks dataset, Stay-at-Home dataset, and the State Characteristics dataset at a state level. 
 
-The Face Masks dataset outlines the public face mandate timelines and the date it was in-effect from. Additionally, the End face mask mandate states the date for the mandate expiration at the state level. There was no missing information or outliers detected in this dataset. We noticed that 10 out of the 51 states had a public mandate for face masks. Furthermore, 16 states had no legal enforcement for the facemask mandate, and 36 out of the 51 states still have an existing face mask mandate in place. 
-The stay-at-home dataset outlines dates when stay-at-home orders came into effect for each state. It also has a column indicating if a state issued stay-at-home orders but did not specifically restrict movement of the general public. 5 out of the 51 states had stay-at-home orders in effect but failed to restrict movement of the general public. The dataset also provides the dates when the orders expired. There were no missing observations or anomalies noted as a part of the dataset.
+The Face Masks dataset outlines the public face mandate timelines at a state level. There was no missing information or outliers detected within this dataset. We noticed that 12 out of the 50 states and Washington DC had a public mandate for face masks. In addition, 13 states had no legal enforcement of face mask mandate, and 36 out of the 50 states have an existing face mask mandate still in place. 
 
-The State Characteristics dataset outlines state-specific characteristics such as population density, population in 2018, square miles, homelessness, percentage unemployed etc. For the purpose of this analysis, the columns used were population density, population and the square miles. Since COVID-19 is highly infectious, population density was a variable of interest. The state population was used to normalize new case count for COVID-19.  There were no missing observations or anomalies noted as a part of the dataset.
-In summary, the CUSP dataset provides integral information for the model as it has the timelines for the stay-at-home order policy per state as well as the face masks mandate. This information is used to construct the duration of quarantine period per state level and whether a face mask mandate was in effect. Stay-at-home is the primary independent variable used in this study.
+The Stay-at-Home dataset outlines dates when stay-at-home orders came into effect for each state. It also has a column indicating whether a state issued stay-at-home orders but did not specifically restrict movement of the general public. 5 out of the 50 states had stay-at-home orders in effect but failed to restrict movement of the general public. The dataset also provides the dates when the orders expired. There were no missing observations or anomalies noted as a part of the dataset.
+
+The State Characteristics dataset outlines state-specific characteristics such as population density, population in 2018, square miles, homelessness, percentage unemployed etc. For the purpose of this analysis, the columns used were population density, population and square miles. Since COVID-19 is highly infectious, population density was a variable of interest. The state population was used to normalize new case count for COVID-19. There were no missing observations or anomalies noted as a part of the dataset.
+
+In summary, the CUSP dataset provides integral information for the model as it has the timelines for the stay-at-home order policy per state as well as the face masks mandate. This information was used to construct the duration of quarantine period at a state level and whether a face mask mandate was in effect. Stay-at-home was the primary independent variable used in this study.
 
 ### COVID-19 Case Data - Interim
 The New York Times COVID-19 dataset was used to obtain the number of coronavirus records in the United States at the state level over time. This time series data allowed us to have a fuller picture of the ongoing outbreak. The data began with the first reported coronavirus case in Washington state on January 21, 2020 and was updated on a daily basis with the final count tallied at the end of each day per state. There are a total of 55 states including four additional US territories (Guam, Northern Mariana Islands, Virgins Islands and Puerto Rico) which will be dropped when merged with CUSP’s state dataset (note that Washington D.C. will be included in the final dataset even though it is not considered a U.S. state). 
@@ -380,6 +384,8 @@ In addition to the created variables above, the final processed dataset containe
 
 Further discussion of variable transformation will be addressed in the “Variable Exploration and Transformation” section.
 
+We have also compared the mobility trends of two states (Kansas and Arkansas) with similar culture and geography. Based on Figure 12 in Appendix H, we observed a lower mobility percentage in Kansas when stay-at-home was in effect as compared to Arkansas. We attributed this lower difference to the effect of stay-at-home order.
+
 ## Variable Exploration & Transformation
 ### Mobility Variables
 Our model aims to isolate the effect of stay-at-home orders on non-essential mobility, which is operationalized by the change in retail and recreation mobility. A number of similar mobility-change measures were available in the Google Mobility dataset, such as change in grocery and pharmacy, and public transportation. Each of the variables, outside of change in retail and recreation, were identified as likely essential travel, and are therefore outside the scope of our research. Change in mobility to parks is identified as a possible control variable for our over-specified model. 
@@ -391,11 +397,11 @@ retail_rec_hist | park_hist
 ```
 
 ### CUSP Variables
-The CUSP dataset mainly consisted of two types of variables. The first was binary variables used to indicate if a policy was in effect such as face mask mandate or stay-at-home policy. The second type of variable in the dataset was of type dates showing the start/end date of various policies . For this study, the columns used had date type values.
+The CUSP dataset mainly consisted of two types of variables. The first was binary variables used to indicate if a policy was in effect such as face mask mandate or stay-at-home policy. The second type of variable in the dataset was of type dates showing the start/end date of various policies. For this study, the columns used had date type values.
 
 Some datasets had zero as the date value which mapped to the policy never being introduced in the state. None of the rows were dropped and the zero-valued dates were mapped as NA. This helped identify states which did not have a stay-at-home order or face mask mandate. 
 
-Dates in the CUSP dataset were not explicitly included in the processed data. Rather, they were used to create new variables as mentioned in section 2.2.4, Processed Variables. Therefore, no transformations were required as a part of pre-processing. Each column with date type was ensured to have datetime in the correct format in the pre-processing step. Overall, the data was well-structured and defined.
+Dates in the CUSP dataset were not explicitly included in the processed data. Rather, they were used to create new variables as mentioned in Section 2.2.4, Processed Variables. Therefore, no transformations were required as a part of pre-processing. Each column with date type was ensured to have datetime in the correct format in the pre-processing step. Overall, the data was well-structured and defined.
 
 ### COVID-19 Variables
 Based on our initial plotting of three states (NY, CA and TX), we obtained cumulative cases for any given day in each state (Appendix C). In order to obtain the number of new cases per day, the number of total cases was subtracted from the prior row (day before). Case and death counts were further normalized by state population.
@@ -418,14 +424,13 @@ quarantine_length_hist | log_quarantine_length_hist
 Due to the many zero-valued observations, log transformation was not an option. A square root transformation could provide a better distribution of the data, but would reduce the ease of interpretation of the model coefficient. Ultimately, the quarantine length variable was not transformed in order to retain zero-valued observations, and intuitive interpretation of model coefficient. This feature allowed the research team to isolate the effect of length stay-at-home orders on a population's willingness to decrease non-essential mobility. 
 
 # Regression Models & Table
-Due to the limited size of unique observations across our time series of fifty states, we are employing the Classical Linear Model. We included three different models in our approach, each serving a different purpose. The second model is our primary model, and is the basis of research outcomes. The base model provides an under-specified comparison to the second model, exhibiting the change in stay-at-home order model estimate based on inclusion of additional variables. Finally, the third model is an over-specified model, with collinearity in variables that threatens sound interpretation.
+Due to the limited size of unique observations across our time series of 50 states, we are employing the Classical Linear Model. We included three different models in our approach, each serving a different purpose. The second model is our primary model, and is the basis of research outcomes. The base model provides an under-specified comparison to the second model, exhibiting the change in stay-at-home order model estimate based on inclusion of additional variables. Finally, the third model is an over-specified model, with collinearity in variables that threatens sound interpretation.
 
 ## Model Construction
 ### Base Model
 For our base model, we only included the main independent variable, stay-at-home order, which is an indicator variable defined in Section II, Model Building Process. This isolated the effect of the stay-at-home order for a given day on the percentage change in non-essential mobility, compared to the pre-COVID baseline value for that respective day. These variables for the base model are identified in Table 1, column (1). 
 
 This model assumes that only the stay-at-home order had an effect on the change in non-essential mobility and no other variables were taken into account for this particular model. Because there are other variables like COVID cases and state population density that could potentially play a role in the change in non-essential mobility, we expect that while stay-at-home order is our primary independent variable, its effect will most likely be overstated due to the omission of these other controlled variables. We discuss this further in Section 5, Omitted Variables.
-
 
 ### Primary Model
 Each of the included features in our primary model were based on the belief that they were confounding effects or were necessary to include in order to properly isolate the causal effect of stay-at-home orders on non-essential mobility. Variables for model two are identified in Table 1, column (2), with theoretical justification for each variable inclusion below.
@@ -438,7 +443,7 @@ Based on the known relationship between COVID-19 spread and dense populations (W
 
 Finally, we included the amount of daily new COVID-19 cases normalized by state population. We believe that citizens may respond to large spikes in state-level daily COVID-19 cases by reducing their mobility. Therefore, we chose to include this variable to control for the effect that may exist between reporting of local COVID-19 trends and its effect on non-essential mobility.
 
-By including each of these control variables, we believe we provide a stronger causal claim in our estimation of stay-at-home order efficacy compared to model one. However, without inclusion of all of the possible confounds, as well as a strong statistical technique, such as difference in difference, we are unable to make a complete causal claim. Further discussion of omitted variables as well as discussion on the decision to *not* employ Difference-in-Differences technique can be found in Study Limitations, section 4. 
+By including each of these control variables, we believe we provide a stronger causal claim in our estimation of stay-at-home order efficacy compared to model one. However, without inclusion of all of the possible confounds, as well as a strong statistical technique, such as difference in difference, we are unable to make a complete causal claim. Further discussion of omitted variables as well as discussion on the decision to *not* employ Difference-in-Differences technique can be found in Study Limitations, Section 4. 
 
 ### Over-specified Model
 For our third and final model, we included variables that potentially add an extra layer of information to the variables from our second model. While we believe our primary model to be sufficient in explaining changes in non-essential mobility, we wish to check if these extra variables would provide some sort of added explanation to the non-essential mobility and also check the model coefficients on variables that we might believe to be highly collinear. Variables for model three are identified in Table 1, column (3). 
@@ -447,7 +452,7 @@ We added daily COVID-19 case changes without the normalization by population to 
 
 Finally, we included percent changes in mobility at parks (local parks, national parks, public beaches, plazas, etc) as our last variable. We were interested in whether mobility patterns at these public parks were similar to mobility patterns at retail and recreational locations, or non-essential mobility, and if traveling more to these parks also influenced non-essential mobility. We assumed travel to these parks was deemed essential for mental and physical health purposes and did not exhibit the same level of non-essential activity.
 
-With the exception of mobility at parks, the additional variables may have overlapping relationships to variables in the primary model and likely cause overfitting of  the model. While all three additional variables are not necessary, they could still provide some additional effect on overall non-essential mobility. At the minimum, increased mobility at parks may indicate an overall increase in mobility at retail and recreational locations.
+With the exception of mobility at parks, the additional variables may have overlapping relationships to variables in the primary model and likely cause overfitting of the model. While all three additional variables are not necessary, they could still provide some effect on overall non-essential mobility. At the minimum, increased mobility at parks may indicate an overall increase in mobility at retail and recreational locations.
           
 ```{r, header = FALSE, results = 'asis',  message = FALSE, error = FALSE, echo = FALSE, warning = FALSE}
 stargazer(
@@ -467,56 +472,58 @@ For our primary variable, stay-at-home order, we reject the null hypothesis that
 
 In periods where a stay-at-home order is not in place, the reduction in non-essential mobility would be only roughly 9% overall, as represented by the model constant. We can most likely associate this with the general lack of movement during COVID-19 due to business and work closures, as well as generally trying to stay safe in one place during the pandemic. 
 
-The risk in relying on this model, however, is that we are making a strong causal claim that stay-at-home orders solely cause changes in non-essential mobility when in reality, new COVID case count or a current mask order also have some impact on whether people are traveling to retail and recreational locations. In fact, our R-squared value is quite low, indicating that the variance in our change in non-essential mobility isn’t explained very well by the stay-at-home order during a given time period. 
+The risk in relying on this model, however, is that we are making a strong causal claim that stay-at-home orders solely cause changes in non-essential mobility when in reality, new COVID case count or a current mask order also have some impact on whether people are traveling to retail and recreational locations. In fact, our R-squared value is quite low, indicating that the variance in our change in non-essential mobility is not explained very well by the stay-at-home order during a given time period. 
 
 ### Primary Model
 For our primary variable that indicates a stay-at-home order, we reject the null hypothesis that there is no relationship between stay-at-home order and non-essential mobility, with a p-value of less than .01 (Table 1 (2)). Similar to our interpretation of the base model, we are able to rely on this result assuming CLM assumptions are met. Specifically, we are able to present evidence that there is a roughly 28% decrease in non-essential mobility during periods when stay-at-home orders are in effect. In addition to a high level of statistical significance, a reduction in mobility of 28% is also highly practically significant. In practice, policymakers who believe their state is similar enough to the overall population may expect a roughly 30% reduction in non-essential travel as a result of implementing a stay-at-home order.
 
-The addition of our control variables also provides interpretation of their effects on non-essential mobility. Each of the control variables (quarantine length, mask order, population density, and new cases per 100k) have a statistically significant effect, with p-values less than .01. These p-values, however, rely on sufficient fulfillment of each of the CLM requirements, which will be further discussed in the Study Limitations, section 4. 
+The addition of our control variables also provides interpretation of their effects on non-essential mobility. Each of the control variables (quarantine length, mask order, population density, and new cases per 100k) have a statistically significant effect, with p-values less than .01. These p-values, however, rely on sufficient fulfillment of each of the CLM requirements, which will be further discussed in the Study Limitations, Section 4. 
 
 The length of quarantine is measured in number of days, and its positive coefficient provides evidence to our theoretical hypothesis that extended stay-at-home orders would result in an increase in non-essential mobility. Specifically, our model would suggest that each additional day of quarantine may result in a .08 percent increase in mobility. Practically, this coefficient is roughly zero. For example, the majority of state stay-at-home orders lasted between 30-60 days. Multiplying 30 - 60 days by the coefficient of .08 would suggest a roughly 2-5 percent increase in non-essential travel, holding all else constant. 
  
-During periods when mask orders were implemented, policymakers may also expect a small reduction in non-essential mobility.  Our model suggests that there is an estimate of 4% reduction in discretionary travel holding all other inputs constant. 
+During periods when mask orders were implemented, policymakers may also expect a small reduction in non-essential mobility. Our model suggests that there is an estimate of 4% reduction in discretionary travel holding all other inputs constant. 
 
-Similar to length of quarantine, population density per square mile has a relatively small coefficient of .0003. Knowing that all fifty states have a population density per mile of 1,200 or less, this effect is practically insignificant. This estimate is likely adjusted slightly downward to account for population-dense areas like Washington D.C, which has nearly 11,000 residents per square mile. 
+Similar to length of quarantine, population density per square mile has a relatively small coefficient of .0003. Knowing that all 50 states have a population density per square mile of 1,200 or less, this effect is practically insignificant. This estimate is likely adjusted slightly downward to account for population-dense areas like Washington D.C, which has nearly 11,000 residents per square mile. 
 
-The coefficient estimate for the number of new cases per day, per one hundred thousand residents, suggests that for each 100 new cases in a day, a 7% decrease in mobility could be expected. Following our primary variable, this is one of our highest estimates in terms of practical significance, and suggests that daily mobility trends are particularly sensitive to localized trends in COVID-19 confirmed cases. Include analysis about constant?
+The coefficient estimate for the number of new cases per day, per 100,000 residents, suggests that for each 100 new cases in a day, a 7% decrease in mobility could be expected. Following our primary variable, this is one of our highest estimates in terms of practical significance, and suggests that daily mobility trends are particularly sensitive to localized trends in COVID-19 confirmed cases.
 
 Finally, the constant estimate of roughly four percent represents the average decrease in non-essential mobility, assuming none of the modeled policies were in effect, and the control variables had values of zero. This is a five percent decrease from the constant estimate in our base model, and is only changing to fit our linear model through the grand mean as we include new variables. 
 
 Overall, our model would suggest that policymakers who wish to reduce non-essential mobility could expect greatest response from implementing stay-at-home orders, and by publishing COVID-19 confirmed case trends in a publicly accessible format. While duration of stay-at-home orders, mask orders, and population density each had a statistically significant and non-zero effect on reducing mobility, the magnitude of their estimates related to observed values are minimal compared to stay-at-home orders and trends in new cases.
 
 ### Over-specified Model
-Similar to our base and primary models, we reject the null hypothesis that there is no relationship between stay-at-home order and non-essential mobility, with a p-value of less than .01 (Table 1 (3)). Specifically, we can present evidence that there is a roughly 26%  decrease in non-essential mobility during periods when stay-at-home orders are in effect. In addition to a high level of statistical significance, a reduction in mobility of 26%  is also highly practically significant. Similar to our primary model, policymakers who believe their state is similar enough to the overall population may expect a roughly one fourth reduction in non-essential travel as a result of implementing a stay-at-home order.
+Similar to our base and primary models, we reject the null hypothesis that there is no relationship between stay-at-home order and non-essential mobility, with a p-value of less than .01 (Table 1 (3)). Specifically, we can present evidence that there is a roughly 26% decrease in non-essential mobility during periods when stay-at-home orders are in effect. In addition to a high level of statistical significance, a reduction in mobility of 26% is also highly practically significant. Similar to our primary model, policymakers who believe their state is similar enough to the overall population may expect a roughly one fourth reduction in non-essential travel as a result of implementing a stay-at-home order.
 
 With regards to the variables that were also in the second model, we still see that quarantine length, mask order, and population density still have a highly statistically significant effect with p-value of less than .01. The coefficients for quarantine length and population density effectively stayed the same as seen table 1, indicating that the addition of variables for our third model had no apparent effect on the effect sizes of these two variables. We do see a slight reduction in the coefficient for mask order, however, from -3.4 to -4 between the second model and third model. The inclusion of percent change in parks visitation pulls some of the effect from our stay-at-home indicator and amplifies the effect of  the mask order. 
 
-By including variables that are outside of our causal framework and are highly collinear, however, we see the coefficients on this over-specified model changing in unpredictable ways in comparison to our primary model.  These variables will likely share relationships between each other, causing the effect of some coefficients to be split. For example, we see that the coefficient estimate for the number of new cases per day per one hundred thousand residents changed from negative to positive and suggest that for each 100 new cases in a day, a 0.9% increase in mobility could be expected, contrary to what we observe in the primary model, where we saw a considerable percent decrease in mobility. Additionally, we see that the coefficient for the total number of new cases is -0.0003 and believe that the effect that our new COVID cases per one hundred thousand residents had on the model was absorbed by the neutral new cases variable. In addition, we notice that the coefficient for the additional population variable is effectively zero (9x10^-8), without exhibiting perfect collinearity. This coefficient could be a normalization factor for the states that have a much higher population, indicating that the denser populations have more movement.
+By including variables that are outside of our causal framework and are highly collinear, however, we see the coefficients on this over-specified model changing in unpredictable ways in comparison to our primary model. These variables will likely share relationships between each other, causing the effect of some coefficients to be split. For example, we see that the coefficient estimate for the number of new cases per day per 100,000 residents changed from negative to positive and suggest that for each 100 new cases in a day, a 0.9% increase in mobility could be expected, contrary to what we observed in the primary model, where we saw a considerable percent decrease in mobility. 
 
-Contrary to the other added features, the inclusion of mobility at parks variable yielded a statistically significant coefficient that was also reasonable. Specifically, for every percent increase in mobility at parks, we get a 0.1% increase in mobility at retail and recreational locations. We can likely attribute this to slightly increased comfort level and confidence in traveling to non-essential locations if we see more people visiting public parks. Also, if people are already traveling to a park, they may be more likely to visit the retail and recreational locations while they are already out. We might also have states, however, that open public parks but restrict people at retail and recreational locations, and that’s why we barely see any increase in mobility to those locations. 
+Additionally, we see that the coefficient for the total number of new cases is -0.0003 and believe that the effect that our new COVID cases per 100,000 residents had on the model was absorbed by the neutral new cases variable. In addition, we notice that the coefficient for the additional population variable is effectively zero (9x10^-8), without exhibiting perfect collinearity. This coefficient could be a normalization factor for the states that have a much higher population, indicating that the denser populations have more movement.
 
-In conclusion, the over-specified model does not add much value to our primary model overall. New COVID cases and population count are already accounted for in the primary model through the new COVID cases per one hundred thousand residents and population density variables. Adding these two extra variables to the third model effectively dilutes some of our model coefficients and returns contradictory information to what we expect. It might be worthwhile, however to include mobility at parks in our model because this might explain some more of the variance in non-essential mobility, but because of different state policies with opening and closures of different locations at different times, we must take this relationship between parks mobility and non-essential mobility lightly. 
+Contrary to the other added features, the inclusion of mobility at parks variable yielded a statistically significant coefficient that was also reasonable. Specifically, for every percent increase in mobility at parks, we get a 0.1% increase in mobility at retail and recreational locations. We can likely attribute this to slightly increased comfort level and confidence in traveling to non-essential locations if we see more people visiting public parks. Also, if people are already traveling to a park, they may be more likely to visit the retail and recreational locations while they are already out. We might also have states, however, that open public parks but restrict people at retail and recreational locations, and that may be why we barely see any increase in mobility to those locations. 
+
+In summary, the over-specified model does not add much value to our primary model overall. New COVID cases and population count are already accounted for in the primary model through the new COVID cases per 100,000 residents and population density variables. Adding these two extra variables to the third model effectively dilutes some of our model coefficients and returns contradictory information to what we expect. It might be worthwhile, however to include mobility at parks in our model because this might explain some more of the variance in non-essential mobility, but because of different state policies with opening and closures of different locations at different times, we must take this relationship between parks mobility and non-essential mobility lightly. 
 
 # Study Limitations
 ## Assessment of CLM
 ### IID
-Due to the time-series nature of the data as well as our inability to effectively implement Difference-in-Differences techniques, the independence assumption is systematically flawed. Especially in the case of COVID-19 reaction, citizens are likely changing behavior today based on events from days prior. Another threat to independence may be  spill-over effects in states like New Jersey and New York, where groups commonly cross state lines for work, retail, and a number of other reasons. 
+Due to the time-series nature of the data as well as our inability to effectively implement Difference-in-Differences techniques, the independence assumption is systematically flawed. Especially in the case of COVID-19 reaction, citizens are likely changing behavior today based on events from days prior. Another threat to independence may be spill-over effects in states like New Jersey and New York, where groups commonly cross state lines for work, retail, and a number of other reasons. 
 
-Additionally, each of these states does not come from an identically distributed population. We believe that citizens in California may behave differently than citizens in Texas due to cultural differences. Additionally, since mobility data is only available based on users who opt-in to location tracking, the sampling is non-random and may be biased by groups who choose to opt-out. 
+Additionally, each of these states does not come from an identically distributed population. We believe that citizens in California may behave differently than citizens in Texas due to cultural differences. Additionally, since mobility data is only available based on users who opt-in to location tracking, the sampling is non-random and may be biased by groups who chose to opt-out. 
 
 We could further minimize the issue of differing sampling distributions by including more controls such as socioeconomic factors, and state-level political affiliation, in addition to our existing controls of population density and mask orders. The purpose of these additional controls would be to adjust for the non-random sampling of our data. 
 
 ### Normally Distributed Errors
-The fifth assumption for the classical linear model is for the errors to be normally distributed. The Q-Q plot in Figure \@ref(fig:residHist) shows that the distribution of errors is not symmetric and does not meet this assumption. Looking at the skew on the left tail, the residuals have a long tail which is also observed in the histogram of residuals. The long tail is coming due to the OLS over predicting for the values close to the left tail. 
+The fifth assumption for the classical linear model is for the errors to be normally distributed. The Q-Q plot in Figure \@ref(fig:residHist) shows that the distribution of errors is not symmetric and does not meet this assumption. Looking at the skew on the left tail, the residuals have a long tail which is also observed in the histogram of residuals. The long tail is occurring due to the OLS over-predicting for the values close to the left tail. 
 
-Since, the assumption is violated, this directly has an impact on the p-values and standard errors. The p-values for the coefficients in the model might be overstated. The effect can be mitigated by transforming variables. However, during the data exploration stage, logarithmic transformations were considered for the new case count variable and it was decided that a value of zero for case count adds value to the model. Adding a constant such as 0.1 to all the 0 case counts can skew the data and yield unexpected results. Finally, we also considered removing outliers in quarantine length (Appendix F) but this resulted in approximately 50% of the data points being dropped. Again, this would yield to the model misrepresenting  the data. Accounting for the above points, we decided to continue our analysis being cognizant of the fact that the errors were not normally distributed.
+Since the assumption is violated, this directly has an impact on the p-values and standard errors. The p-values for the coefficients in the model might be overstated. The effect can be mitigated by transforming variables. However, during the data exploration stage, logarithmic transformations were considered for the new case count variable and it was decided that a value of zero for case count adds value to the model. Adding a constant such as 0.1 to all the 0 case counts may skew the data and yield unexpected results. Finally, we also considered removing outliers in quarantine length (Appendix F) but this resulted in approximately 50% of the data points being dropped. Again, this would yield model misrepresentation. Accounting for the above points, we decided to continue our analysis being cognizant of the fact that the errors were not normally distributed.
 
 ```{r residHist, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'Checks for Normality'}
 resid_hist | qq
 ```
 
 ### Summary of CLM Violations
-While none of the CLM evaluations provided severe enough evidence to completely disallow usage of the classical linear regression model, the imperfect fulfillment of some of the requirements poses a threat to both internal and external validity, which threaten the interpretation of our model. These assumptions ensure our ability to make statistically-grounded inferences about the data, and without fulfillment of these requirements, the estimates for each of our coefficients may be biased, inconsistent, and without accurate p-values. 
+While none of the CLM evaluations provided severe enough evidence to completely disallow usage of the classical linear regression model, the imperfect fulfillment of some of the requirements poses a threat to both internal and external validity, which introduces risk to the interpretation of our model. These assumptions ensure our ability to make statistically-grounded inferences about the data, and without fulfillment of these requirements, the estimates for each of our coefficients may be biased, inconsistent, and without accurate p-values. 
 
 Our biggest violation of the classical linear model requirements was CLM #5 - normally distributed errors.  As mentioned above, attempts to transform variables and remove outliers introduced other limitations in our study. Accepting a model that yields non-linear errors results in biased standard error estimates which lead to increases in type-I error (above our .05 threshold) and likely incorrect p-values. 
 
@@ -524,33 +531,32 @@ In addition to the violations in CLM #5, the first CLM requirement of independen
 
 ## Other Limitations
 ### Difference-in-Differences
-After the Stay at Home orders were enacted, it is important to estimate the effect it had on non essential mobility. The reason the states across the country enacted orders was to stop the spread of COVID-19. One way to answer this question would be to use the Difference-in-differences(diff-in-diff) statistical model. 
+After the Stay at Home orders were enacted, it is important to estimate the effect it had on non essential mobility. The reason the states across the country enacted orders was to stop the spread of COVID-19. One way to answer this question would be to use the difference-in-differences (DID) statistical model. 
 
-To use the diff-in-diff model, there is a need of observed outcomes of groups who were exposed to the intervention(treated) and groups who were not exposed to the intervention(control), both before and after the intervention. 
+To use the DID model, there is a need of observed outcomes of groups who were exposed to the intervention (treated) and groups who were not exposed to the intervention (control), both before and after the intervention. 
 
-Diff-in-diff model was considered for this analysis because there were states which had mandated a Stay at Home order but did not specifically restrict movement of the general public. The control group would consist of Connecticut, Hawaii, Kentucky, Oklahoma, and Texas. The treatment group would consist of the remainder of the states.
+DID model was considered for this analysis because there were states which had mandated a stay-at-home order but did not specifically restrict movement of the general public. The control group would consist of Connecticut, Hawaii, Kentucky, Oklahoma, and Texas. The treatment group would consist of the remainder of the states.
 
-We encountered two concerns with the Differences-in-Differences estimation technique that caused us to not use this method. Primarily, we had to pick one start and one end date for stay-at-home orders across the United States. Because states introduced stay-at-home orders with different start-dates and durations, we would be sacrificing richness in the data, and making a weak assumption about a unified treatment time. Additionally, there is concern in the requirement for homogeneity across the different comparison groups. We believe that states like Texas are inherently different than states like California. A further discussion on our Difference-in-Differences modeling, estimation, and concerns is located in Appendix G.  
+We encountered two concerns with the Differences-in-Differences estimation technique that caused us to not use this method. Primarily, we had to pick one start and one end date for stay-at-home orders across the US. Because states introduced stay-at-home orders with different start-dates and duration, we would be sacrificing richness in the data, and making a weak assumption about a unified treatment time. Additionally, there is concern in the requirement for homogeneity across the different comparison groups. We believe that states like Texas are inherently different than states such California. A detailed discussion on our Difference-in-Differences modeling, estimation, and concerns is located in Appendix G.  
 
 # Discussion of Omitted Variables
 
-Our primary model from section III (Regression models) uses stay-at-home variable as the independent variable of interest and four other control variables (duration of stay-at-home order, mask mandate, population density & the new Covid case count) as model inputs. There are many omitted variables which go unnoticed as a part of the analysis. The effect of political leanings, demographics, and individuals at risk is discussed below.
+Our primary model from section III (Regression models) uses stay-at-home variable as the independent variable of interest and four other control variables (duration of stay-at-home order, mask mandate, population density & the state-normalized new COVID case count) as model inputs. There are many omitted variables which go unnoticed as a part of the analysis. The effect of political leanings, demographics, and individuals at risk is discussed below.
 
-Urban and rural areas in the US have very different philosophies when it comes to government policies, which may result in variation of the public response and acceptance. The change in acceptance or disregard of COVID-19 policies could lead to higher weightage on the stay-at-home order. This omitted variable likely causes our stay-at-home effect to be overstated and biased away from zero.  
+Urban and rural areas in the US have very different philosophies when it comes to government policies, which may result in variation of public response and acceptance. The change in acceptance or disregard of COVID-19 policies could lead to higher weightage on the stay-at-home order. This omitted variable likely caused our stay-at-home effect to be overstated and biased away from zero.  
 
-Demographic information per county has shown that people from lower socioeconomic groups, especially African Americans and Latinos are more likely to get infected[7]. People in this demographic are also employed by the service industry and other blue collared jobs where it is impossible to work remotely. As a result, we believe that residents in this demographic would not change their non-essential mobility behavior to the same degree as someone working remotely from home, since they are spending a large portion of their day in a high risk environment. This would lead to an overestimation of the effect of stay-at-home orders, which is a bias away from zero.  
+Demographic information per county has shown that people from lower socioeconomic groups, especially African Americans and Latinos are more likely to get infected [7]. People in this demographic are also employed by the service industry and other blue collared jobs where it is impossible to work remotely. As a result, we believe that residents in this demographic would not change their non-essential mobility behavior to the same degree as someone working remotely from home, since they are spending a large portion of their day in a high risk environment. This would lead to an overestimation of the effect of stay-at-home orders, which is a bias away from zero.  
 
-Finally, individuals at risk are another omitted variable that could affect mobility. An example of individuals at risk would be college students with compromised immune system disorders. They are less likely to engage in social activities compared to college students who are healthy. This can be extended to the population in general where residents at risk are advised to be cautious and limit mobility to essential needs. Omitting this results leads to an overestimation of the effect of stay-at-home order, which is a bias away from zero.  
-
+Finally, individuals at risk are another omitted variable that could affect mobility. An example of individuals at risk would be college students with compromised immune system disorders. They are less likely to engage in social activities compared to college students who are healthy. This can be extended to the population in general in which residents at risk are advised to be cautious and limit mobility to essential needs. Omitting this results leads to an overestimation of the effect of stay-at-home order, which is a bias away from zero.  
 
 # Conclusion
 In conclusion, our model provides evidence that there is a strong negative relationship between stay-at-home orders and non-essential mobility. This result provides policymakers evidence that if they impose restrictions on non-essential movement, they may expect a 28% decrease. 
 
-Each of our control variables exhibited significant negative relationships as well, with the exception of duration of stay-at-home order. The positive nature of this relationship suggests there may be a tipping point, in which “COVID-fatigued” individuals start to increase their non-essential activities after extended periods of lock-down. Mask mandates, number of new COVID-19 cases, and population density exhibited negative relationships with non-essential mobility as well, but were much smaller in magnitude. 
+Each of our control variables exhibited significant negative relationships as well, with the exception of duration of stay-at-home order. The positive nature of this relationship suggests there may be a tipping point, in which “COVID-fatigued” individuals start to increase their non-essential activities after extended periods of lock-down. Mask mandates, number of state-normalized new COVID-19 cases, and population density exhibited negative relationships with non-essential mobility as well, but were much smaller in magnitude. 
 
 Therefore, we would suggest that policymakers looking to reduce non-essential mobility may receive the highest response by imposing stay-at-home orders of reasonable length, and by publishing publicly-accessible trends in local COVID-19 infections. While it is tempting to use this research to identify the "optimal" stay-at-home duration from a mobility efficiency perspective, it is not the purpose of our research and would require further study. 
 
-While we believe our model is able to identify trends in the data and represents a causal relationship between our dependent and independent variables,  omitted variables, the inability to operationalize Difference-in-Differences, and violations of the CLM provide risk to our model. 
+While we believe our model is able to identify trends in the data and represents a causal relationship between our dependent and independent variables, omitted variables, the inability to operationalize Difference-in-Differences, and violations of the CLM provide risk to our model. 
 
 <!------------------------------------------------------------------------------------------------------------------------------------->
 
@@ -581,7 +587,7 @@ During Exploration of the retail and recreation mobility data, patterns were obs
 First, the distribution of missing values was not equal across states, as seen below in Appendix B.1. This poses a particular threat in population inference, especially for states with high percentages of missing observations. 
 
 ![Appendix B.1](./missing_observations_screengrabs/AppendixB1.png)
-In further exploration of the data, a skewed distribution of missing data by month was observed, with heavy amounts of omitted data occurring in the first two months of the data. 
+After further exploration of the data, a skewed distribution of missing data by month was observed, with heavy amounts of omitted data occurring in the first two months of the data. 
 
 ![Appendix B.2](./missing_observations_screengrabs/AppendixB2.png)
                 
@@ -589,16 +595,18 @@ Isolating on the first two months, it is clear there is a systematic pattern of 
 
 ![Appendix B.3](./missing_observations_screengrabs/AppendixB3.png)
                 
-Returning to the entire dataset, we identified a pattern in missing data by day-of-week as well - where highest percentages of NA’s occurred during the week. Without the ability to locate further information on missingness, the group was forced to drop these observations. Additionally,  due to the time series nature of the data and the fluid trend, outlier treatment, such as interpolation or replacement with averages, was not administered due to the risk of overshadowing trends real trends in included data.
+Returning to the entire dataset, we identified a pattern in missing data by day-of-week as well - when highest percentages of NA’s occurred during the week. Without the ability to locate further information on missing-ness, we were forced to drop these observations. Additionally, due to the time series nature of the data and the fluid trend, outlier treatment, such as interpolation or replacement with averages, was not administered due to the risk of overshadowing real trends in included data.
 
 ![Appendix B.4](./missing_observations_screengrabs/AppendixB4.png)
-
+<!-- --------------------------- -->
 
 \newpage
 
 ## Appendix C: Discussion on variable transformation in NYT COVID-19 Dataset
 
-```{r COVIDEDA1, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'prediction versus residuals by variable'}
+Cumulative numbers were observed and calculations were performed in order to extract the new count of cases per day.
+
+```{r COVIDEDA1, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'Cumulative Cases in COVID-19 Dataset'}
 ny_state_covid | ny_state_covid_new
 ```
 
@@ -621,7 +629,7 @@ Additionally, there was no strong trend that could be identified as a lower-orde
 \newpage
 
 ## Appendix E: CLM Requirement #3: No Perfect Collinearity
-Because we don’t see any coefficients dropped from our primary model in table 1, we can safely assume no perfect collinearity. Also, all of the coefficients have values that are comprehensible and can easily be interpreted. Finally, we looked at the Variance Inflation Factor (VIF), which measures how much the variance of each regression coefficient is inflated due to multicollinearity in the model. We noticed that the VIF values are very close to 1, indicating that each variable had minimal inflated variance due to potential multicollinearity in the model. 
+Because we don’t see any coefficients dropped from our primary model in Table 1, we can safely assume no perfect collinearity. Also, all of the coefficients have values that are comprehensible and can easily be interpreted. Finally, we looked at the Variance Inflation Factor (VIF), which measures how much the variance of each regression coefficient is inflated due to multicollinearity in the model. We noticed that the VIF values are very close to 1, indicating that each variable had minimal inflated variance due to potential multicollinearity in the model. 
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'prediction versus residuals by variable'}
 car::vif(model_two)
@@ -630,17 +638,17 @@ car::vif(model_two)
 \newpage
 
 ## Appendix F: CLM Requirement #4: Homoskedastic Errors 
-In order to assess whether the distribution of the errors is homoskedastic, we will examine the residuals versus fitted plot again (Appendix D.1). We are interested in whether or not there is a band of even thickness form left to right. There appears to be an increase in the variance of residuals on the right-end side as noted in Appendix D, CLM 2. However, it is not severe. 
+In order to assess whether the distribution of the errors is homoskedastic, we will examine the residuals versus fitted plot again (Appendix D Figure 9). We are interested in whether or not there is a band of even thickness form left to right. There appears to be an increase in the variance of residuals on the right-end side as noted in Appendix D, CLM 2. However, it is not severe. 
 
-Another idea is to examine the scale-location plot. Homoskedasticity would show up on the plot as a flat smoothing curve. Based on Appendix F.1, there appears to be an uptick on the variances on the residual points with fitted variables, suggesting a slight problem with heteroskedasticity (non-constant variances in residual errors). This could be attributed to the new cases per 100k variable obtained from the COVID-19 dataset as we assumed negative new case counts were corrective adjustments made to erroneous data entry. In addition, we also observed "data dumps" on a given day in certain states such as Missouri in which 290 new cases in the previous day and the 50,328 new cases in the next day. The “data dumps” are assumed to be the change in cases definition as mentioned in the COVID-19 data interim section.
+Another idea is to examine the scale-location plot. Homoskedasticity would show up on the plot as a flat smoothing curve. Based on Figure 11, there appears to be an uptick on the variances on the residual points with fitted variables, suggesting a slight problem with heteroskedasticity (non-constant variances in residual errors). This could be attributed to the new cases per 100k variable obtained from the COVID-19 dataset as we assumed negative new case counts were corrective adjustments made to erroneous data entry. In addition, we also observed "data dumps" on a given day in certain states such as Missouri in which 290 new cases in the previous day and the 50,328 new cases in the next day. The “data dumps” are assumed to be the change in cases definition as mentioned in the COVID-19 data interim section.
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'prediction versus residuals by variable'}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'Scale-Location Plot'}
 plot(model_two, which=3)
 ```
 
 In an attempt to further research on the uptick in scale-location plot, we filtered out residuals above 0.5 for the sake of homoskedasticity at the cost of removing 9,641 outlier data points. Although the uptick has reduced in the scale-location plot (figure below), the trade-off is that close to 10,000 data points were omitted. 
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'prediction versus residuals by variable'}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=4, fig.cap = 'Modified Scale-Location Plot'}
 plot(model_two_drop, which=3)
 ```
 
@@ -649,16 +657,18 @@ As mentioned above, we attribute the outliers to erroneous data entries or “da
 \newpage
 
 ## Appendix G: Difference-in-Difference Discussion and Estimation
-The next requirement was to understand when the intervention happened. The Stay at Home orders came into effect at different points in time in the year 2020. Some states were proactive and were quick to introduce one in March while others never imposed one. The intervention date was calculated by taking the average of the earliest Stay at Home order and the last Stay at Home order which came into effect. This date was calculated to be March 28th, 2020. One of the primary reasons we did not move forward with Difference-in-Differences 
+The next requirement was to understand when the intervention happened. The stay-at-home orders came into effect at different points in time in the year 2020. Some states were proactive and were quick to introduce one in March while others never imposed one. The intervention date was calculated by taking the average of the earliest stay-at-home order and the last stay-at-home order which came into effect. This date was calculated to be March 28th, 2020. One of the primary reasons we did not move forward with Difference-in-Differences. 
 
 The 2 diff-in-diff models were run with the below variables.
 
 ```
 DID <- data_filtered %>%
-  lm(avg_retail_rec_change ~ start*group + quarantine_length + mask_order + population_density + new_cases_per_100k, .)
+  lm(avg_retail_rec_change ~ start*group + quarantine_length + mask_order 
+        + population_density + new_cases_per_100k, .)
 
 DID2 <- data_filtered %>%
-  lm(avg_retail_rec_change ~ start*group + quarantine_length + mask_order + new_cases_per_100k, .)
+  lm(avg_retail_rec_change ~ start*group + quarantine_length + mask_order 
+        + new_cases_per_100k, .)
 
 ```
 
@@ -671,6 +681,7 @@ Diff-in-diff  model works well when both the control and treatment groups are id
 \newpage
 
 ## Appendix H: Comparison of state in and out of quarantine EDA
-```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=6}
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.width=12, fig.height=6, fig.cap = 'Kansas versus Arkansas Mobility Trends'}
 state_comp
 ```
